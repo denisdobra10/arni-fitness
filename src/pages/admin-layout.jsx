@@ -16,7 +16,7 @@ function AdminLayout() {
             <div className='flex flex-row w-full'>
 
 
-                <div className="sm:flex w-[20%] hidden">
+                <div className="sm:flex sm:flex-col w-[20%] hidden">
                     <NavigationSidebar />
                 </div>
 
@@ -30,4 +30,4 @@ function AdminLayout() {
     )
 }
 
-export default Layout
+export default AdminLayout

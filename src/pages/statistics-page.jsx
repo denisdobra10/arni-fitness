@@ -12,9 +12,9 @@ import CoachesStatisticsList from '../components/statistics/coaches-statistics-l
 function StatisticsPage() {
     return (
         <div className='flex flex-col p-6 w-full'>
+            <HeaderTitleWidget title='Statistici (Energy Kardio Club)' />
 
             <section id="main-statistics-section">
-                <HeaderTitleWidget title='Statistici (Energy Kardio Club)' />
 
                 <div className="container">
                     <MainStatisticsList />
