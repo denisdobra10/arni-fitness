@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import StatisticsPage from '../pages/statistics-page';
 import AbonamentePage from '../pages/abonamente-page';
 import ClasePage from '../pages/clase-page';
+import AntrenoriPage from '../pages/antrenori-page';
 
 function AdminDashboard() {
     return (
@@ -13,6 +14,7 @@ function AdminDashboard() {
                     <Route index element={<StatisticsPage />} />
                     <Route path='/abonamente' element={<AbonamentePage />} />
                     <Route path='/clase' element={<ClasePage />} />
+                    <Route path='/antrenori' element={<AntrenoriPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
