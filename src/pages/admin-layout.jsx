@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import NavigationSidebar from '../components/navigation-sidebar';
 import MenuIcon from '@mui/icons-material/Menu';
 
-function Layout() {
+function AdminLayout() {
     return (
 
         <>

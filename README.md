@@ -1,8 +1,5 @@
-# React + Vite
+# Fitness Business Management Web Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a fitness business management web application meant to help business owners to manage their gym classes, coaches and other parts of the business.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Project is made in React + Vite + Tailwind.

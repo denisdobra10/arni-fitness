@@ -11,7 +11,7 @@ function MainStatisticsList() {
         <div className="flex flex-col sm:flex-row p-6 justify-center items-center gap-6">
             <StatisticCard icon={membershipTypeIcon} iconWidth='100px' value={'155'} title={'Abonamente vandute'} />
             <StatisticCard icon={revenueBagIcon} iconWidth='100px' value={'2470 lei'} title={'Venit luna aceasta'} />
-            <StatisticCard icon={muscleIcon} iconWidth='100px' value={'35'} title={'Clienti Activi'} />
+            <StatisticCard icon={muscleIcon} iconWidth='100px' value={'35'} title={'Clienti activi'} />
             <StatisticCard icon={membershipCardIcon} iconWidth='100px' value={'24'} title={'Clienti astazi'} />
         </div>
     )
