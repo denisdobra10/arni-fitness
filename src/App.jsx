@@ -4,7 +4,7 @@ import AdminDashboard from './screens/admin-screen'
 
 function App() {
   return (
-    <div>
+    <div id='root'>
       <AdminDashboard />
     </div>
   )
