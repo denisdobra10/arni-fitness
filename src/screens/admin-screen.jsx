@@ -6,6 +6,8 @@ import AbonamentePage from '../pages/abonamente-page';
 import ClasePage from '../pages/clase-page';
 import AntrenoriPage from '../pages/antrenori-page';
 import CalendarPage from '../pages/calendar-page';
+import ClientiPage from '../pages/clienti-page';
+import InventarPage from '../pages/inventar-page';
 
 function AdminDashboard() {
     return (
@@ -17,6 +19,8 @@ function AdminDashboard() {
                     <Route path='/clase' element={<ClasePage />} />
                     <Route path='/antrenori' element={<AntrenoriPage />} />
                     <Route path='/calendar' element={<CalendarPage />} />
+                    <Route path='/clienti' element={<ClientiPage />} />
+                    <Route path='/inventar' element={<InventarPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
