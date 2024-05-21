@@ -1,21 +1,16 @@
 import React from 'react'
 import { Outlet } from "react-router-dom";
 import NavigationSidebar from '../components/navigation-sidebar';
-import MenuIcon from '@mui/icons-material/Menu';
+import AdminMobileMenu from '../components/admin-mobile-menu';
+
 
 function AdminLayout() {
     return (
 
         <>
-            <div className="flex flex-row w-full bg-yellow-500 justify-between sm:hidden">
-                Logo
-                <MenuIcon onClick={() => console.log('test')} />
-
-            </div>
+            <AdminMobileMenu />
 
             <div className='flex flex-row w-full'>
-
-
                 <div className="sm:flex sm:flex-col w-[20%] hidden">
                     <NavigationSidebar />
                 </div>

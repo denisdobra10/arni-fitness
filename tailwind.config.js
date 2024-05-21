@@ -10,6 +10,9 @@ export default {
         primary: '#AC0D0C',
         textcolor: '#ffffff'
       },
+      boxShadow: {
+        'spreaded': '0 10px 100px -15px rgba(0, 0, 0, 0.3)',
+      },
     },
   },
   plugins: [],
