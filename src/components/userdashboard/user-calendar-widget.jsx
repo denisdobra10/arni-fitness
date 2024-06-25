@@ -13,8 +13,6 @@ function UserCalendarWidget() {
         alert('Data selectata: ' + arg.dateStr);
     }
 
-
-
     return (
         <>
             <FullCalendar

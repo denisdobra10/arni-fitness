@@ -31,6 +31,7 @@ const AdminMobileMenu = () => {
                     <Link to='/calendar' className={currentPath === '/calendar' ? 'text-red-500' : ''}>Calendar</Link>
                     <Link to='/clienti' className={currentPath === '/clienti' ? 'text-red-500' : ''}>Clienti</Link>
                     <Link to='/inventar' className={currentPath === '/inventar' ? 'text-red-500' : ''}>Inventar</Link>
+                    <button className='border-t border-slate-500 w-full py-2 text-left'>Iesire din cont</button>
                 </div>}
             </div>
 

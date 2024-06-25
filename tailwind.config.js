@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        signup: "url(/arni-signup-page-bg.png)"
+      },
       colors: {
         primary: '#AC0D0C',
         textcolor: '#ffffff'

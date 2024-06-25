@@ -65,7 +65,7 @@ function ClientListWidget({ clients }) {
                                 <TableCell>{client.registrationDate}</TableCell>
                                 <TableCell>{client.activeSubscription ? 'Da' : 'Nu'}</TableCell>
                                 <TableCell>
-                                    <Button variant="contained">Vezi mai multe</Button>
+                                    <Button variant="contained">Vezi ultima factura</Button>
                                 </TableCell>
                             </TableRow>
                         ))}
