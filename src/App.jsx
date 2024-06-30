@@ -14,11 +14,11 @@ function App() {
 
   return (
     <div id='root'>
-      {/*  <SignupScreen /> */}
+        {/*<SignupScreen />*/}
       {isLoading && <LoadingScreen message={loadingMessage} />}
-      {/* <LoginScreen /> */}
-	{ <AdminDashboard /> }
-      {/* <UserScreen /> */}
+       {/*<LoginScreen />*/}
+	{/*{ <AdminDashboard /> }*/}
+       <UserScreen />
       {/* <MembershipScreen /> */}
     </div>
   )

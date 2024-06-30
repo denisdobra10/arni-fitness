@@ -1,0 +1,45 @@
+package com.dodera.arni_fitness.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.Set;
+
+@Data
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
+    private String authid;
+
+    @Column(nullable = false)
+    private String name;
+
+    @JsonIgnore
+    @Column
+    private String password;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(length = 4, unique = true)
+    private Integer pin;
+
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column
+    private Long activeSubscriptionId;
+
+    @JsonIgnore
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user")
+    private Set<Purchase> purchases;
+}
