@@ -43,10 +43,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/register").permitAll()
-                        .requestMatchers("/api/login").permitAll()
-                        .requestMatchers("/api/forgot_password").permitAll()
-                        .requestMatchers("/api/refresh_token").permitAll()
+                        .requestMatchers("/register").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/forgot_password").permitAll()
+                        .requestMatchers("/refresh_token").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);

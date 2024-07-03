@@ -13,6 +13,12 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private String name;
+
+    @Column
+    private Integer availableSpots;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "class_id", nullable = false)
     private Class sessionClass;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Entity
@@ -36,10 +36,14 @@ public class User {
     private String phoneNumber;
 
     @Column
-    private Long activeSubscriptionId;
+    private String stripeCustomerId;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "last_subscription_id", referencedColumnName = "id")
+    private Subscription lastSubscription;
 
     @JsonIgnore
     @JsonManagedReference
     @OneToMany(mappedBy = "user")
-    private Set<Purchase> purchases;
+    private List<Purchase> purchases;
 }

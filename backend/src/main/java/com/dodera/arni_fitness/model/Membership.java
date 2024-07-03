@@ -1,5 +1,6 @@
 package com.dodera.arni_fitness.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -32,6 +33,10 @@ public class Membership {
     @NotBlank
     private String description;
 
+    @Column
+    private String stripeProductId;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "membership")
     private Set<Purchase> purchases;
 }

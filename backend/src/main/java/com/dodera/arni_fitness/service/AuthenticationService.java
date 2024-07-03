@@ -3,6 +3,7 @@ package com.dodera.arni_fitness.service;
 import com.dodera.arni_fitness.dto.SignUpRequest;
 import com.dodera.arni_fitness.model.User;
 import com.dodera.arni_fitness.repository.UserRepository;
+import com.stripe.exception.StripeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ public class AuthenticationService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final StripeService stripeService;
     private final PasswordEncoder passwordEncoder;
 
     private Integer generateRandomPin() {
@@ -26,23 +28,35 @@ public class AuthenticationService {
         return pin;
     }
 
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthenticationService(UserRepository userRepository, StripeService stripeService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.stripeService = stripeService;
         this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(SignUpRequest signUpRequest) {
         if (userRepository.findByEmail(signUpRequest.email()).isPresent()) {
-            throw new IllegalArgumentException("Email already taken");
+            throw new IllegalArgumentException("Acest email este deja folosit.");
         }
 
-        User user = new User();
-        user.setName(signUpRequest.name());
-        user.setEmail(signUpRequest.email());
-        user.setPassword(passwordEncoder.encode(signUpRequest.password()));
-        user.setPhoneNumber(signUpRequest.phoneNumber());
-        user.setPin(generateRandomPin());
-        return userRepository.save(user);
+        try {
+            String stripeCustomerId = stripeService.handleCustomerCreation(signUpRequest);
+
+            if (stripeCustomerId == null || stripeCustomerId.isEmpty()) {
+                throw new RuntimeException("A aparut o eroare la crearea contului.");
+            }
+
+            User user = new User();
+            user.setName(signUpRequest.name());
+            user.setEmail(signUpRequest.email());
+            user.setPassword(passwordEncoder.encode(signUpRequest.password()));
+            user.setPhoneNumber(signUpRequest.phoneNumber());
+            user.setPin(generateRandomPin());
+            user.setStripeCustomerId(stripeCustomerId);
+            return userRepository.save(user);
+        } catch (StripeException e) {
+            throw new RuntimeException("A aparut o eroare la crearea contului.");
+        }
     }
 
     public User loginUser(String email, String password) {

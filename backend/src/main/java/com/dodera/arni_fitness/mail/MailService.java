@@ -15,7 +15,6 @@ public class MailService {
         String subject = "Bine ai venit!";
         String text = String.format("Hello", name, "https://doderasoft.com/");
 
-
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("test@doderasoft.com");
         message.setTo(toEmail);

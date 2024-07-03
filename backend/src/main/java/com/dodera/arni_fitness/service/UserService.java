@@ -1,15 +1,13 @@
 package com.dodera.arni_fitness.service;
 
-import com.dodera.arni_fitness.dto.SubscriptionDetails;
-import com.dodera.arni_fitness.model.Reservation;
-import com.dodera.arni_fitness.model.Subscription;
-import com.dodera.arni_fitness.model.User;
+import com.dodera.arni_fitness.dto.*;
+import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.repository.ReservationRepository;
+import com.dodera.arni_fitness.repository.SessionRepository;
 import com.dodera.arni_fitness.repository.SubscriptionRepository;
 import com.dodera.arni_fitness.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -20,12 +18,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final SessionRepository sessionRepository;
 
-
-    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository) {
+    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository, SessionRepository sessionRepository) {
         this.userRepository = userRepository;
         this.reservationRepository = reservationRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     private int countReservationsTomorrow(List<Reservation> reservations) {
@@ -51,28 +50,139 @@ public class UserService {
         return (int) ChronoUnit.DAYS.between(LocalDateTime.now(), endOfSubscription);
     }
 
-    public SubscriptionDetails getSubscriptionDetails(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("Invalid user id"));
-
-        if (user.getActiveSubscriptionId() == null) {
+    public SubscriptionDetails getSubscriptionDetails(User user) {
+        if (user.getLastSubscription() == null) {
             throw new IllegalArgumentException("Userul nu are o subscriptie activa");
         }
 
-        Subscription userActiveSubscription = subscriptionRepository.findById(user.getActiveSubscriptionId()).orElseThrow(()
-                -> new IllegalArgumentException("Userul nu are o subscriptie activa"));
+        if (user.getLastSubscription().getStartDate().isAfter(LocalDateTime.now().minusDays(30))) {
+            throw new IllegalArgumentException("Subscriptia a expirat");
+        }
+
+        Subscription activeSubscription = user.getLastSubscription();
+
 
         SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
 
-        List<Reservation> allReservations = reservationRepository.findAllForUserId(userId);
-        LocalDateTime today = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
+        List<Reservation> allReservations = reservationRepository.findAllForUserId(user.getId());
 
         subscriptionDetails.setReservationsTomorrow(countReservationsTomorrow(allReservations));
         subscriptionDetails.setReservationsTotal(allReservations.size());
         subscriptionDetails.setWeekReservations(countReservationsThisWeek(allReservations));
-        subscriptionDetails.setReservationsLeft(0);
-        subscriptionDetails.setDaysLeft(getDaysLeft(userActiveSubscription));
+        subscriptionDetails.setReservationsLeft(activeSubscription.getEntriesLeft());
+        subscriptionDetails.setDaysLeft(getDaysLeft(activeSubscription));
         return subscriptionDetails;
     }
 
+    public TodaySessions getTodaySessions() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime midnight = LocalDateTime.of(now.toLocalDate(), LocalTime.MAX);
+
+        List<TodaySessions.TodaySession> todaySessions = sessionRepository.findAll()
+                .stream()
+                .filter(session -> session.getDatetime().isAfter(now)
+                        && session.getDatetime().isBefore(midnight))
+                .map(session -> new TodaySessions.TodaySession(
+                        session.getId(),
+                        session.getName(),
+                        session.getCoach().getName(),
+                        session.getDatetime(),
+                        session.getAvailableSpots())
+                        )
+                .toList();
+
+        return new TodaySessions(todaySessions);
+    }
+
+    public ActiveReservations getActiveReservations(List<Reservation> reservations) {
+        List<ActiveReservations.ActiveReservation> activeReservations = reservations.stream().filter(reservation -> reservation.getSession().getDatetime().isAfter(LocalDateTime.now()))
+                .map(reservation -> new ActiveReservations.ActiveReservation(
+                        reservation.getId(),
+                        reservation.getSession().getDatetime(),
+                        reservation.getSession().getCoach().getName(),
+                        reservation.getSession().getName()))
+                .toList();
+
+        return new ActiveReservations(activeReservations);
+    }
+
+    public PurchasesDetails getPurchases(User user) {
+        List<PurchasesDetails.PurchaseDetails> purchasesDetails = user.getPurchases().stream()
+                .map(purchase -> {
+                    Membership membership = purchase.getMembership();
+                    return new PurchasesDetails.PurchaseDetails(
+                            purchase.getDatetime(),
+                            membership.getTitle(),
+                            membership.getPrice()
+                    );
+                }).toList();
+        return new PurchasesDetails(purchasesDetails);
+
+    }
+
+    public UserDetailsResponse getUserDetails(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new IllegalArgumentException("Invalid user id"));
+
+        List<Reservation> reservations = reservationRepository.findAllForUserId(userId);
+
+        return new UserDetailsResponse(
+                getSubscriptionDetails(user),
+                getTodaySessions(),
+                getActiveReservations(reservations),
+                getPurchases(user)
+        );
+    }
+
+    public void reserveSession(Long userId, Long sessionId) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new IllegalArgumentException("Invalid user id"));
+
+        Session session = sessionRepository.findById(sessionId).orElseThrow(()
+                -> new IllegalArgumentException("Invalid session id"));
+
+        if (session.getAvailableSpots() == 0) {
+            throw new IllegalArgumentException("Nu mai sunt locuri disponibile");
+        }
+
+        if (user.getLastSubscription().getEntriesLeft() == 0) {
+            throw new IllegalArgumentException("Nu mai ai intrari disponibile");
+        }
+
+        Reservation reservation = new Reservation();
+        reservation.setUser(user);
+        reservation.setSession(session);
+        reservation.setCreated(LocalDateTime.now());
+
+        reservationRepository.save(reservation);
+
+        Subscription subscription = user.getLastSubscription();
+        subscription.setEntriesLeft(subscription.getEntriesLeft() - 1);
+        subscriptionRepository.save(subscription);
+
+        session.setAvailableSpots(session.getAvailableSpots() - 1);
+        sessionRepository.save(session);
+    }
+
+    public void cancelReservation(Long userId, Long reservationId) {
+        User user = userRepository.findById(userId).orElseThrow(()
+                -> new IllegalArgumentException("Invalid user id"));
+
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()
+                -> new IllegalArgumentException("Invalid reservation id"));
+
+        Subscription subscription = user.getLastSubscription();
+        subscription.setEntriesLeft(subscription.getEntriesLeft() + 1);
+        subscriptionRepository.save(subscription);
+
+        Session session = reservation.getSession();
+        session.setAvailableSpots(session.getAvailableSpots() + 1);
+        sessionRepository.save(session);
+
+        reservationRepository.delete(reservation);
+    }
+
+    public void purchaseSubscription() {
+
+    }
 }

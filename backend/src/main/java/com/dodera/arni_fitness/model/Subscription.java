@@ -18,6 +18,9 @@ public class Subscription {
     @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
 
+    @Column(name = "entries_left", nullable = false)
+    private Integer entriesLeft;
+
     @Column(nullable = false)
     private String period;
 
