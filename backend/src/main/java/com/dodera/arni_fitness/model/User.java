@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -38,7 +39,10 @@ public class User {
     @Column
     private String stripeCustomerId;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @Column
+    private LocalDateTime createdAt;
+
+    @OneToOne
     @JoinColumn(name = "last_subscription_id", referencedColumnName = "id")
     private Subscription lastSubscription;
 

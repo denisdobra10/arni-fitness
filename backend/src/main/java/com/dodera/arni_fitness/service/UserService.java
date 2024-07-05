@@ -1,6 +1,10 @@
 package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.*;
+import com.dodera.arni_fitness.dto.details.ActiveReservations;
+import com.dodera.arni_fitness.dto.details.PurchasesDetails;
+import com.dodera.arni_fitness.dto.details.SubscriptionDetails;
+import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.repository.ReservationRepository;
 import com.dodera.arni_fitness.repository.SessionRepository;
@@ -19,12 +23,14 @@ public class UserService {
     private final ReservationRepository reservationRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SessionRepository sessionRepository;
+    private final StripeService stripeService;
 
-    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository, SessionRepository sessionRepository) {
+    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository, SessionRepository sessionRepository, StripeService stripeService) {
         this.userRepository = userRepository;
         this.reservationRepository = reservationRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.sessionRepository = sessionRepository;
+        this.stripeService = stripeService;
     }
 
     private int countReservationsTomorrow(List<Reservation> reservations) {
@@ -52,11 +58,11 @@ public class UserService {
 
     public SubscriptionDetails getSubscriptionDetails(User user) {
         if (user.getLastSubscription() == null) {
-            throw new IllegalArgumentException("Userul nu are o subscriptie activa");
+            return null;
         }
 
         if (user.getLastSubscription().getStartDate().isAfter(LocalDateTime.now().minusDays(30))) {
-            throw new IllegalArgumentException("Subscriptia a expirat");
+            return null;
         }
 
         Subscription activeSubscription = user.getLastSubscription();
@@ -74,15 +80,15 @@ public class UserService {
         return subscriptionDetails;
     }
 
-    public TodaySessions getTodaySessions() {
+    public AvailableSessions getAvailableSessions() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime midnight = LocalDateTime.of(now.toLocalDate(), LocalTime.MAX);
 
-        List<TodaySessions.TodaySession> todaySessions = sessionRepository.findAll()
+        List<AvailableSessions.AvailableSession> availableSessions = sessionRepository.findAll()
                 .stream()
                 .filter(session -> session.getDatetime().isAfter(now)
                         && session.getDatetime().isBefore(midnight))
-                .map(session -> new TodaySessions.TodaySession(
+                .map(session -> new AvailableSessions.AvailableSession(
                         session.getId(),
                         session.getName(),
                         session.getCoach().getName(),
@@ -91,7 +97,7 @@ public class UserService {
                         )
                 .toList();
 
-        return new TodaySessions(todaySessions);
+        return new AvailableSessions(availableSessions);
     }
 
     public ActiveReservations getActiveReservations(List<Reservation> reservations) {
@@ -128,7 +134,7 @@ public class UserService {
 
         return new UserDetailsResponse(
                 getSubscriptionDetails(user),
-                getTodaySessions(),
+                getAvailableSessions(),
                 getActiveReservations(reservations),
                 getPurchases(user)
         );
@@ -182,7 +188,12 @@ public class UserService {
         reservationRepository.delete(reservation);
     }
 
-    public void purchaseSubscription() {
+    public void purchaseSubscription(Long userId, Long membershipId) {
+        try {
+            stripeService.handleSubscriptionCreation(userId, membershipId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Eroare la crearea abonamentului");
+        }
 
     }
 }

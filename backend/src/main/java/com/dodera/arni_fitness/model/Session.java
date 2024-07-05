@@ -19,11 +19,11 @@ public class Session {
     @Column
     private Integer availableSpots;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
-    private Class sessionClass;
+    private ClassEntity sessionClassEntity;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "coach_id", nullable = false)
     private Coach coach;
 

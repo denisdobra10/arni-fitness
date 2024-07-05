@@ -8,12 +8,12 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class TodaySessions {
-    private List<TodaySession> todaySessions;
+public class AvailableSessions {
+    private List<AvailableSession> availableSessions;
 
     @Data
     @AllArgsConstructor
-    public static class TodaySession {
+    public static class AvailableSession {
         private Long sessionId;
         private String sessionName;
         private String coachName;

@@ -1,12 +1,11 @@
 package com.dodera.arni_fitness.controller;
 
-import com.dodera.arni_fitness.dto.LoginRequest;
-import com.dodera.arni_fitness.dto.LoginResponse;
+import com.dodera.arni_fitness.dto.request.LoginRequest;
+import com.dodera.arni_fitness.dto.response.LoginResponse;
 import com.dodera.arni_fitness.dto.SignUpRequest;
 import com.dodera.arni_fitness.model.User;
 import com.dodera.arni_fitness.security.TokenService;
 import com.dodera.arni_fitness.service.AuthenticationService;
-import com.dodera.arni_fitness.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/")

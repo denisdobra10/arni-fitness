@@ -1,4 +1,4 @@
-package com.dodera.arni_fitness.dto;
+package com.dodera.arni_fitness.dto.request;
 
 public record LoginRequest(
     String email,

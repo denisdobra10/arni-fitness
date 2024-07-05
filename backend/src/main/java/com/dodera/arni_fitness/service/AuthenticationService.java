@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -53,6 +55,7 @@ public class AuthenticationService {
             user.setPhoneNumber(signUpRequest.phoneNumber());
             user.setPin(generateRandomPin());
             user.setStripeCustomerId(stripeCustomerId);
+            user.setCreatedAt(LocalDateTime.now());
             return userRepository.save(user);
         } catch (StripeException e) {
             throw new RuntimeException("A aparut o eroare la crearea contului.");

@@ -17,8 +17,8 @@ function App() {
         {/*<SignupScreen />*/}
       {isLoading && <LoadingScreen message={loadingMessage} />}
        {/*<LoginScreen />*/}
-	{/*{ <AdminDashboard /> }*/}
-       <UserScreen />
+	{ <AdminDashboard /> }
+    {/*   <UserScreen />*/}
     {/*   <MembershipScreen />*/}
     </div>
   )

@@ -14,7 +14,7 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
 
@@ -22,7 +22,7 @@ public class Subscription {
     private Integer entriesLeft;
 
     @Column(nullable = false)
-    private String period;
+    private Integer period;
 
     @Column(name = "startdate", nullable = false)
     private LocalDateTime startDate;

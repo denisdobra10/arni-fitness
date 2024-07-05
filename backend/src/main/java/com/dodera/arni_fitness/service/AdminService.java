@@ -1,17 +1,16 @@
 package com.dodera.arni_fitness.service;
 
-import com.dodera.arni_fitness.dto.ClassRequest;
-import com.dodera.arni_fitness.dto.CoachClassStatistics;
+import com.dodera.arni_fitness.dto.details.*;
+import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.CoachInfo;
-import com.dodera.arni_fitness.dto.MembershipRequest;
-import com.dodera.arni_fitness.model.Class;
-import com.dodera.arni_fitness.model.Coach;
-import com.dodera.arni_fitness.model.Membership;
-import com.dodera.arni_fitness.repository.ClassRepository;
-import com.dodera.arni_fitness.repository.CoachRepository;
-import com.dodera.arni_fitness.repository.MembershipRepository;
-import com.dodera.arni_fitness.repository.PurchaseRepository;
+import com.dodera.arni_fitness.dto.request.MembershipRequest;
+import com.dodera.arni_fitness.dto.request.SessionRequest;
+import com.dodera.arni_fitness.dto.response.AdminDetailsResponse;
+import com.dodera.arni_fitness.model.*;
+import com.dodera.arni_fitness.model.ClassEntity;
+import com.dodera.arni_fitness.repository.*;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Product;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,18 +22,28 @@ import java.util.List;
 
 @Service
 public class AdminService {
+    private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
     private final PurchaseRepository purchaseRepository;
     private final ClassRepository classRepository;
     private final StripeService stripeService;
     private final CoachRepository coachRepository;
+    private final ItemRepository itemRepository;
+    private final SessionRepository sessionRepository;
+    private final SubscriptionRepository subscriptionRepository;
+    private final EntryRepository entryRepository;
 
-    public AdminService(MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, ClassRepository classRepository, StripeService stripeService, CoachRepository coachRepository) {
+    public AdminService(UserRepository userRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, ClassRepository classRepository, StripeService stripeService, CoachRepository coachRepository, ItemRepository itemRepository, SessionRepository sessionRepository, SubscriptionRepository subscriptionRepository, EntryRepository entryRepository) {
+        this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.purchaseRepository = purchaseRepository;
         this.classRepository = classRepository;
         this.stripeService = stripeService;
         this.coachRepository = coachRepository;
+        this.itemRepository = itemRepository;
+        this.sessionRepository = sessionRepository;
+        this.subscriptionRepository = subscriptionRepository;
+        this.entryRepository = entryRepository;
     }
 
     // METODE PENTRU SUBSCRIPTII
@@ -59,8 +68,19 @@ public class AdminService {
         }
     }
 
-    public void deleteMembership(Long id) {
+    public String deleteMembership(Long id) {
+        Membership membership = membershipRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Invalid membership id"));
+
+        try {
+            Product product = Product.retrieve(membership.getStripeProductId());
+            product.delete();
+        } catch (StripeException e) {
+            throw new RuntimeException("A aparut o eroare la stergerea subscriptiei.");
+        }
+
         membershipRepository.deleteById(id);
+        return "Membership deleted successfully";
     }
 
     public void updateMembership(Long id, MembershipRequest membershipRequest) {
@@ -81,10 +101,10 @@ public class AdminService {
         return membershipRepository.findAll();
     }
 
-    public Membership getMostChosenMembership(String title) {
+    public Membership getMostChosenMembership(List<Membership> memberships) {
         Membership mostChosenMembership = null;
 
-        for (Membership membership : getMemberships()) {
+        for (Membership membership : memberships) {
             if (mostChosenMembership == null) {
                 mostChosenMembership = membership;
             } else if (mostChosenMembership.getPurchases().size() < membership.getPurchases().size()) {
@@ -97,15 +117,17 @@ public class AdminService {
 
     // METODE PENTRU CLASE
 
-    public void addClass(ClassRequest classRequest) {
-        var classEntity = new Class();
+    public ClassEntity addClass(ClassRequest classRequest) {
+        var classEntity = new ClassEntity();
         classEntity.setTitle(classRequest.title());
         classEntity.setDescription(classRequest.description());
-        classRepository.save(classEntity);
+        classEntity.setAvailableSpots(classRequest.availableSpots());
+        return classRepository.save(classEntity);
     }
 
-    public void deleteClass(Long id) {
+    public String deleteClass(Long id) {
         classRepository.deleteById(id);
+        return "Class deleted successfully";
     }
 
     public void updateClass(Long id, ClassRequest classRequest) {
@@ -115,11 +137,11 @@ public class AdminService {
         classRepository.save(classEntity);
     }
 
-    public Class getClass(Long id) {
+    public ClassEntity getClass(Long id) {
         return classRepository.findById(id).orElseThrow();
     }
 
-    public List<Class> getClasses() {
+    public List<ClassEntity> getClasses() {
         return classRepository.findAll();
     }
 
@@ -137,10 +159,7 @@ public class AdminService {
         coachRepository.save(coach);
     }
 
-    public void addCoach(String name, String description) {
-        var coach = new Coach();
-        coach.setName(name);
-        coach.setDescription(description);
+    public void addCoach(Coach coach) {
         coachRepository.save(coach);
     }
 
@@ -159,5 +178,225 @@ public class AdminService {
         }
 
         return coachInfos;
+    }
+
+    // METODE PENTRU INVENTAR
+
+    public void deleteItem(Long id) {
+        var item = this.itemRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid item id"));
+
+        itemRepository.deleteById(id);
+    }
+
+    public void updateItem(Long id, String title, Integer quantity) {
+        var item = this.itemRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid item id"));
+        item.setTitle(title);
+        item.setQuantity(quantity);
+        itemRepository.save(item);
+    }
+
+    public Item addItem(String title, Integer quantity) {
+        var item = new Item();
+        item.setTitle(title);
+        item.setQuantity(quantity);
+        return itemRepository.save(item);
+    }
+
+    public List<Item> getItems() {
+        return itemRepository.findAll();
+    }
+
+    // METODE PENTRU STATISTICI
+
+    public Integer getSubscriptionCount() {
+        // Returneaza numarul de abonamente vandute
+        return subscriptionRepository.findAll().size();
+    }
+
+    public Integer getMonthlyRevenue(List<Purchase> purchases) {
+        // Current time
+        LocalDateTime now = LocalDateTime.now();
+        // Start of the current month
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+
+        return purchases.stream()
+                .filter(purchase -> purchase.getDatetime().isAfter(startOfMonth) && purchase.getDatetime().isBefore(now))
+                .mapToInt(purchase ->
+                        purchase.getMembership().getPrice()).sum();
+    }
+
+    private int getActiveSubscriptions(List<Subscription> subscriptions) {
+        return (int) subscriptions.stream().filter(subscription ->
+                subscription.getStartDate().plusDays(subscription.getPeriod()).isAfter(LocalDateTime.now())).count();
+    }
+
+    private int getTodayEntries(List<Entry> entries) {
+        return (int) entries.stream().filter(entry -> entry.getDate().isEqual(LocalDate.now())).count();
+    }
+
+    private int getTodayReservations(List<Session> sessions) {
+        return (int) sessions.stream().filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private int getTodayFullSessions(List<Session> sessions) {
+        return (int) sessions.stream().filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .filter(session -> session.getAvailableSpots() == 0).count();
+    }
+
+    private String getChosenClass(List<Session> sessions) {
+        return sessions.stream().filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .map(session -> session.getSessionClassEntity().getTitle()).findFirst().orElse("");
+    }
+
+    public StatisticsDetails getStatistics(List<Subscription> subscriptions, List<Purchase> purchases,
+                                           List<Membership> memberships, List<Entry> entries,
+                                           List<ClassEntity> classes, List<Session> sessions,
+                                           List<Coach> coaches) {
+
+        Membership mostChosenMembership = getMostChosenMembership(memberships);
+
+        return new StatisticsDetails(
+                subscriptions.size(),
+                getActiveSubscriptions(subscriptions),
+                getTodayEntries(entries),
+                getMonthlyRevenue(purchases),
+                memberships.size(),
+                classes.size(),
+                coaches.size(),
+                getTodayReservations(sessions),
+                getTodayFullSessions(sessions),
+                "Nume clasa",
+                "Nume clasa",
+                "Nume clasa",
+                "Nume clasa",
+                mostChosenMembership != null ? mostChosenMembership.getTitle() : null
+        );
+    }
+
+    public List<MembershipDetails> getMembershipsDetails(List<Membership> memberships) {
+        return memberships.stream().map(membership -> {
+            return new MembershipDetails(
+                    membership.getTitle(),
+                    membership.getDescription(),
+                    membership.getPurchases().size(),
+                    membership.getPrice(),
+                    membership.getEntries(),
+                    membership.getAvailability()
+            );
+        }).toList();
+    }
+
+    public List<ClassDetails> getClassesDetails(List<ClassEntity> classes, List<Session> sessions) {
+        return classes.stream().map(classEntity -> new ClassDetails(
+                classEntity.getTitle(),
+                sessions.stream().filter(session
+                        -> session.getSessionClassEntity().getId().equals(classEntity.getId()) && session.getDatetime().isAfter(LocalDateTime.now()))
+                        .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum(),
+                classEntity.getAvailableSpots(),
+                classEntity.getDescription()
+        )).toList();
+    }
+
+    public List<SessionDetails> getSessionsDetails(List<Session> sessions) {
+        return sessions.stream().map(session -> new SessionDetails(
+                session.getId(),
+                session.getName(),
+                session.getAvailableSpots(),
+                session.getSessionClassEntity().getTitle(),
+                session.getCoach().getName(),
+                session.getDatetime()
+        )).toList();
+    }
+
+    public List<ClientDetails> getClientsDetails(List<User> users) {
+        return users.stream().map(user -> {
+            String paymentLink = "";
+            boolean isActive = false;
+            Subscription lastSubscription = user.getLastSubscription();
+            if (lastSubscription != null) {
+                paymentLink = lastSubscription.getPurchase().getPaymentLink();
+                isActive = lastSubscription.getStartDate().isAfter(LocalDateTime.now().minusMonths(1));
+            }
+
+            return new ClientDetails(
+                    user.getName(),
+                    user.getEmail(),
+                    user.getPhoneNumber(),
+                    user.getCreatedAt().toString(),
+                    isActive,
+                    paymentLink
+            );
+        }).toList();
+    }
+
+    public List<Item> getInventoryDetails() {
+        return itemRepository.findAll();
+    }
+
+    public AdminDetailsResponse getDetails() {
+        List<Purchase> purchases = purchaseRepository.findAll();
+        List<Membership> memberships = membershipRepository.findAll();
+        List<ClassEntity> classEntities = classRepository.findAll();
+        List<Session> sessions = sessionRepository.findAll();
+        List<Coach> coaches = coachRepository.findAll();
+        List<Item> items = itemRepository.findAll();
+        List<User> users = userRepository.findAll();
+
+        return new AdminDetailsResponse(
+                getStatistics(subscriptionRepository.findAll(), purchases, memberships, entryRepository.findAll(), classEntities, sessions, coaches),
+                getMembershipsDetails(memberships),
+                getClassesDetails(classEntities, sessions),
+                null,
+                getClientsDetails(users),
+                getInventoryDetails()
+        );
+    }
+
+    public void checkinUser(String pin) {
+        User user = userRepository.findByPin(Integer.valueOf(pin)).orElseThrow(() -> new IllegalArgumentException("Nu exista nici un utilizator cu acest pin."));
+
+        Subscription lastSubscription = user.getLastSubscription();
+        if (lastSubscription == null) {
+            throw new IllegalArgumentException("Utilizatorul nu are nici un abonament activ.");
+        }
+
+        if (lastSubscription.getStartDate().plusDays(lastSubscription.getPeriod()).isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Abonamentul utilizatorului a expirat.");
+        }
+
+        if (lastSubscription.getEntriesLeft() == 0) {
+            throw new IllegalArgumentException("Utilizatorul a folosit toate intrarile disponibile.");
+        }
+
+        Entry entry = new Entry();
+        entry.setDate(LocalDate.now());
+        entry.setUserId(user.getId());
+        entryRepository.save(entry);
+        lastSubscription.setEntriesLeft(lastSubscription.getEntriesLeft() - 1);
+        subscriptionRepository.save(lastSubscription);
+    }
+
+    public AdminDetailsResponse addSession(SessionRequest sessionRequest) {
+        ClassEntity classEntity = classRepository.findById(sessionRequest.classId()).orElseThrow(
+                () -> new IllegalArgumentException("Nu exista aceasta clasa."));
+        Coach coach = coachRepository.findById(sessionRequest.coachId()).orElseThrow(
+                () -> new IllegalArgumentException("Nu exista acest antrenor."));
+
+        Session session = new Session();
+        session.setName(sessionRequest.name());
+        session.setAvailableSpots(classEntity.getAvailableSpots());
+        session.setDatetime(sessionRequest.date());
+        session.setCoach(coach);
+        session.setSessionClassEntity(classEntity);
+        sessionRepository.save(session);
+        return getDetails();
+    }
+
+    public AdminDetailsResponse deleteSession(Long id) {
+        sessionRepository.deleteById(id);
+        return getDetails();
     }
 }
