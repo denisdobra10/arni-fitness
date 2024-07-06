@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name = "coaches")
@@ -20,6 +22,14 @@ public class Coach {
     @Column(nullable = false, length = 1000)
     @NotBlank
     private String description;
+
+    @ManyToMany
+    @JoinTable(
+        name = "coach_classes",
+        joinColumns = @JoinColumn(name = "coach_id"),
+        inverseJoinColumns = @JoinColumn(name = "class_id")
+    )
+    private List<ClassEntity> coachedClasses;
 
     @Override
     public boolean equals(Object obj) {

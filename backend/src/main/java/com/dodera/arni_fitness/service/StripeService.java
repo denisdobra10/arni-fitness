@@ -41,7 +41,7 @@ public class StripeService {
                 PriceCreateParams.builder()
                         .setProduct(product.getId())
                         .setCurrency("ron")
-                        .setUnitAmount((long) membershipRequest.price())
+                        .setUnitAmount((long) membershipRequest.price() * 100)
                         .build();
 
         Price price = Price.create(priceParams);

@@ -145,6 +145,13 @@ public class AdminService {
         return classRepository.findAll();
     }
 
+    public void assignCoachToClass(Long classId, Long coachId) {
+        var classEntity = classRepository.findById(classId).orElseThrow(() -> new IllegalArgumentException("Nu exista aceasta clasa."));
+        var coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException("Nu exista acest antrenor."));
+        coach.getCoachedClasses().add(classEntity);
+        coachRepository.save(coach);
+    }
+
     // METODE PENTRU ANTRENORI
 
     public void deleteCoach(Long id) {

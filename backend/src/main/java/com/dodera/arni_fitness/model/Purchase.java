@@ -1,14 +1,19 @@
 package com.dodera.arni_fitness.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @Table(name = "purchases")
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Purchase {
 
     @Id
@@ -17,10 +22,12 @@ public class Purchase {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "membership_id", nullable = false)
+    @JsonBackReference
     private Membership membership;
 
     @Column(name = "payment_link", nullable = false)

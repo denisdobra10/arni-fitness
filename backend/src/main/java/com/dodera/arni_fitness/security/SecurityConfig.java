@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/forgot_password").permitAll()
                         .requestMatchers("/refresh_token").permitAll()
                         .anyRequest().authenticated())

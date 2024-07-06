@@ -1,14 +1,16 @@
 package com.dodera.arni_fitness.dto.response;
 
-import com.dodera.arni_fitness.dto.details.ActiveReservations;
-import com.dodera.arni_fitness.dto.details.PurchasesDetails;
+import com.dodera.arni_fitness.dto.AvailableSession;
+import com.dodera.arni_fitness.dto.details.ActiveReservation;
+import com.dodera.arni_fitness.dto.details.PurchaseDetails;
 import com.dodera.arni_fitness.dto.details.SubscriptionDetails;
-import com.dodera.arni_fitness.dto.AvailableSessions;
+
+import java.util.List;
 
 public record UserDetailsResponse(
         SubscriptionDetails subscriptionDetails,
-        AvailableSessions todaySessions,
-        ActiveReservations activeReservations,
-        PurchasesDetails purchasesDetails
+        List<AvailableSession> todaySessions,
+        List<ActiveReservation> activeReservations,
+        List<PurchaseDetails> purchasesDetails
 ) {
 }

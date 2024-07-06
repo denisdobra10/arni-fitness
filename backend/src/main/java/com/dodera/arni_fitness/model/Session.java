@@ -1,5 +1,6 @@
 package com.dodera.arni_fitness.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,10 +22,12 @@ public class Session {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
+    @JsonBackReference
     private ClassEntity sessionClassEntity;
 
     @ManyToOne
     @JoinColumn(name = "coach_id", nullable = false)
+    @JsonBackReference
     private Coach coach;
 
     @Column(name = "datetime", nullable = false)

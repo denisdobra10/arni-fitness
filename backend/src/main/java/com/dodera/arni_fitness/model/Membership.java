@@ -1,6 +1,7 @@
 package com.dodera.arni_fitness.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -38,5 +39,6 @@ public class Membership {
 
     @JsonIgnore
     @OneToMany(mappedBy = "membership")
+    @JsonManagedReference
     private Set<Purchase> purchases;
 }

@@ -1,13 +1,18 @@
 package com.dodera.arni_fitness.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
 @Table(name = "subscriptions")
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Subscription {
 
     @Id
@@ -16,6 +21,7 @@ public class Subscription {
 
     @OneToOne
     @JoinColumn(name = "purchase_id", nullable = false)
+    @JsonBackReference
     private Purchase purchase;
 
     @Column(name = "entries_left", nullable = false)

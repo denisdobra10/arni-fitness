@@ -1,15 +1,12 @@
 package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.*;
-import com.dodera.arni_fitness.dto.details.ActiveReservations;
-import com.dodera.arni_fitness.dto.details.PurchasesDetails;
+import com.dodera.arni_fitness.dto.details.ActiveReservation;
+import com.dodera.arni_fitness.dto.details.PurchaseDetails;
 import com.dodera.arni_fitness.dto.details.SubscriptionDetails;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
 import com.dodera.arni_fitness.model.*;
-import com.dodera.arni_fitness.repository.ReservationRepository;
-import com.dodera.arni_fitness.repository.SessionRepository;
-import com.dodera.arni_fitness.repository.SubscriptionRepository;
-import com.dodera.arni_fitness.repository.UserRepository;
+import com.dodera.arni_fitness.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,13 +20,17 @@ public class UserService {
     private final ReservationRepository reservationRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final SessionRepository sessionRepository;
+    private final MembershipRepository membershipRepository;
+    private final PurchaseRepository purchaseRepository;
     private final StripeService stripeService;
 
-    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository, SessionRepository sessionRepository, StripeService stripeService) {
+    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository, SessionRepository sessionRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, StripeService stripeService) {
         this.userRepository = userRepository;
         this.reservationRepository = reservationRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.sessionRepository = sessionRepository;
+        this.membershipRepository = membershipRepository;
+        this.purchaseRepository = purchaseRepository;
         this.stripeService = stripeService;
     }
 
@@ -57,16 +58,15 @@ public class UserService {
     }
 
     public SubscriptionDetails getSubscriptionDetails(User user) {
-        if (user.getLastSubscription() == null) {
-            return null;
-        }
-
-        if (user.getLastSubscription().getStartDate().isAfter(LocalDateTime.now().minusDays(30))) {
-            return null;
-        }
-
         Subscription activeSubscription = user.getLastSubscription();
 
+        if (activeSubscription == null) {
+            return null;
+        }
+
+        if (activeSubscription.getStartDate().isBefore(LocalDateTime.now().minusDays(activeSubscription.getPeriod()))) {
+            return null;
+        }
 
         SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
 
@@ -80,15 +80,15 @@ public class UserService {
         return subscriptionDetails;
     }
 
-    public AvailableSessions getAvailableSessions() {
+    public List<AvailableSession> getAvailableSessions() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime midnight = LocalDateTime.of(now.toLocalDate(), LocalTime.MAX);
 
-        List<AvailableSessions.AvailableSession> availableSessions = sessionRepository.findAll()
+        return sessionRepository.findAll()
                 .stream()
                 .filter(session -> session.getDatetime().isAfter(now)
                         && session.getDatetime().isBefore(midnight))
-                .map(session -> new AvailableSessions.AvailableSession(
+                .map(session -> new AvailableSession(
                         session.getId(),
                         session.getName(),
                         session.getCoach().getName(),
@@ -96,34 +96,29 @@ public class UserService {
                         session.getAvailableSpots())
                         )
                 .toList();
-
-        return new AvailableSessions(availableSessions);
     }
 
-    public ActiveReservations getActiveReservations(List<Reservation> reservations) {
-        List<ActiveReservations.ActiveReservation> activeReservations = reservations.stream().filter(reservation -> reservation.getSession().getDatetime().isAfter(LocalDateTime.now()))
-                .map(reservation -> new ActiveReservations.ActiveReservation(
+    public List<ActiveReservation> getActiveReservations(List<Reservation> reservations) {
+        return reservations.stream().filter(reservation -> reservation.getSession().getDatetime().isAfter(LocalDateTime.now()))
+                .map(reservation -> new ActiveReservation(
                         reservation.getId(),
                         reservation.getSession().getDatetime(),
                         reservation.getSession().getCoach().getName(),
                         reservation.getSession().getName()))
                 .toList();
-
-        return new ActiveReservations(activeReservations);
     }
 
-    public PurchasesDetails getPurchases(User user) {
-        List<PurchasesDetails.PurchaseDetails> purchasesDetails = user.getPurchases().stream()
+    public List<PurchaseDetails> getPurchases(User user) {
+        return  user.getPurchases().stream()
                 .map(purchase -> {
                     Membership membership = purchase.getMembership();
-                    return new PurchasesDetails.PurchaseDetails(
+                    return new PurchaseDetails(
                             purchase.getDatetime(),
                             membership.getTitle(),
-                            membership.getPrice()
+                            membership.getPrice(),
+                            purchase.getPaymentLink()
                     );
                 }).toList();
-        return new PurchasesDetails(purchasesDetails);
-
     }
 
     public UserDetailsResponse getUserDetails(Long userId) {
@@ -162,10 +157,6 @@ public class UserService {
 
         reservationRepository.save(reservation);
 
-        Subscription subscription = user.getLastSubscription();
-        subscription.setEntriesLeft(subscription.getEntriesLeft() - 1);
-        subscriptionRepository.save(subscription);
-
         session.setAvailableSpots(session.getAvailableSpots() - 1);
         sessionRepository.save(session);
     }
@@ -177,10 +168,6 @@ public class UserService {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()
                 -> new IllegalArgumentException("Invalid reservation id"));
 
-        Subscription subscription = user.getLastSubscription();
-        subscription.setEntriesLeft(subscription.getEntriesLeft() + 1);
-        subscriptionRepository.save(subscription);
-
         Session session = reservation.getSession();
         session.setAvailableSpots(session.getAvailableSpots() + 1);
         sessionRepository.save(session);
@@ -190,7 +177,29 @@ public class UserService {
 
     public void purchaseSubscription(Long userId, Long membershipId) {
         try {
-            stripeService.handleSubscriptionCreation(userId, membershipId);
+            User user = userRepository.findById(userId).orElseThrow(()
+                    -> new IllegalArgumentException("Invalid user id"));
+
+            Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
+                    -> new IllegalArgumentException("Invalid membership id"));
+
+            Purchase purchase = new Purchase();
+            purchase.setUser(user);
+            purchase.setMembership(membership);
+            purchase.setDatetime(LocalDateTime.now());
+            purchase.setPaymentLink("https://example.com/payment");
+            purchaseRepository.save(purchase);
+
+            Subscription subscription = new Subscription();
+            subscription.setPurchase(purchase);
+            subscription.setStartDate(LocalDateTime.now());
+            subscription.setEntriesLeft(membership.getEntries());
+            subscription.setPeriod(membership.getAvailability());
+            subscriptionRepository.save(subscription);
+
+            user.setLastSubscription(subscription);
+            userRepository.save(user);
+//            stripeService.handleSubscriptionCreation(userId, membershipId);
         } catch (Exception e) {
             throw new IllegalArgumentException("Eroare la crearea abonamentului");
         }
