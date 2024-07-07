@@ -15,13 +15,13 @@ function NavigationSidebar() {
 
             <h6 className='text-primary font-medium text-md mt-6'>Meniu</h6>
             <div className="flex flex-col mt-3">
-                <Link to='/' className={location.pathname === '/' ? activeDesign : inactiveDesign}>Statistici</Link>
-                <Link to='/abonamente' className={location.pathname === '/abonamente' ? activeDesign : inactiveDesign}>Abonamente</Link>
-                <Link to='/clase' className={location.pathname === '/clase' ? activeDesign : inactiveDesign}>Clase</Link>
-                <Link to='/antrenori' className={location.pathname === '/antrenori' ? activeDesign : inactiveDesign}>Antrenori</Link>
-                <Link to='/calendar' className={location.pathname === '/calendar' ? activeDesign : inactiveDesign}>Calendar</Link>
-                <Link to='/clienti' className={location.pathname === '/clienti' ? activeDesign : inactiveDesign}>Clienti</Link>
-                <Link to='/inventar' className={location.pathname === '/inventar' ? activeDesign : inactiveDesign}>Inventar</Link>
+                <Link to='' className={location.pathname === '/admin' ? activeDesign : inactiveDesign}>Statistici</Link>
+                <Link to='abonamente' className={location.pathname === '/admin/abonamente' ? activeDesign : inactiveDesign}>Abonamente</Link>
+                <Link to='clase' className={location.pathname === '/admin/clase' ? activeDesign : inactiveDesign}>Clase</Link>
+                <Link to='antrenori' className={location.pathname === '/admin/antrenori' ? activeDesign : inactiveDesign}>Antrenori</Link>
+                <Link to='calendar' className={location.pathname === '/admin/calendar' ? activeDesign : inactiveDesign}>Calendar</Link>
+                <Link to='clienti' className={location.pathname === '/admin/clienti' ? activeDesign : inactiveDesign}>Clienti</Link>
+                <Link to='inventar' className={location.pathname === '/admin/inventar' ? activeDesign : inactiveDesign}>Inventar</Link>
             </div>
 
         </div>

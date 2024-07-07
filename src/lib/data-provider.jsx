@@ -14,14 +14,35 @@ export const DataProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
 
-        if (token) {
-            if (user) return;
+        const fetchUserData = async () => {
+            if (token) {
+                try {
+                    const response = await axios.get('/user/details');
 
-            if (localStorage.getItem('user' !== null)) {
-                user = JSON.parse(localStorage.getItem('user'));
+                    setUser(response.data);
+                    localStorage.setItem('user', JSON.stringify(response.data));
+                } catch (err) {
+                    console.log(err);
+                }
+
             }
         }
-    }, [user]);
+
+        const getUser = async () => {
+
+            if (token) {
+                if (user) return;
+
+                if (localStorage.getItem('user' !== null)) {
+                    setUser(JSON.parse(localStorage.getItem('user')));
+                } else {
+                    fetchUserData();
+                }
+            }
+        }
+
+        getUser();
+    }, []);
 
     const login = async (token) => {
         localStorage.setItem('accessToken', token);
