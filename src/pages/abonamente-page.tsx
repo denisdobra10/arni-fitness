@@ -13,7 +13,7 @@ function AbonamentePage() {
 
 
     useEffect(() => {
-
+        console.log('fetching memberships')
         const fetchMemberships = async () => {
             try {
                 const response = await axios.get('/admin/memberships');

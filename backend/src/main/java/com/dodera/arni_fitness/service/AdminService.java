@@ -74,7 +74,6 @@ public class AdminService {
 
         try {
             Product product = Product.retrieve(membership.getStripeProductId());
-            //product.delete();
             product.update(ProductUpdateParams.builder().setActive(false).build());
         } catch (StripeException e) {
             throw new RuntimeException("A aparut o eroare la stergerea subscriptiei.");
@@ -123,6 +122,7 @@ public class AdminService {
         classEntity.setTitle(classRequest.title());
         classEntity.setDescription(classRequest.description());
         classEntity.setAvailableSpots(classRequest.availableSpots());
+
         return classRepository.save(classEntity);
     }
 
@@ -146,11 +146,14 @@ public class AdminService {
         return classRepository.findAll();
     }
 
-    public void assignCoachToClass(Long classId, Long coachId) {
+    public List<ClassDetails> assignCoachToClass(Long classId, Long coachId) {
         var classEntity = classRepository.findById(classId).orElseThrow(() -> new IllegalArgumentException("Nu exista aceasta clasa."));
         var coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException("Nu exista acest antrenor."));
+
         coach.getCoachedClasses().add(classEntity);
         coachRepository.save(coach);
+
+        return getClassesDetails();
     }
 
     // METODE PENTRU ANTRENORI
@@ -380,6 +383,7 @@ public class AdminService {
         List<Session> sessions = sessionRepository.findAll();
 
         return classes.stream().map(classEntity -> new ClassDetails(
+                classEntity.getId(),
                 classEntity.getTitle(),
                 sessions.stream().filter(session
                         -> session.getSessionClassEntity().getId().equals(classEntity.getId()) && session.getDatetime().isAfter(LocalDateTime.now()))

@@ -41,6 +41,7 @@ function StatisticsPage() {
 
     useEffect(() => {
         const fetchData = async () => {
+
             try {
                 const response = await axios.get('/admin/statistics');
                 setData(response.data);
