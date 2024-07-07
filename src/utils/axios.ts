@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://localhost:8080/api',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -10,7 +10,10 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-        // Do something before request is sent
+        const accessToken = localStorage.getItem('accessToken')
+        if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`
+        }
         return config
     },
     (error) => {
@@ -21,7 +24,11 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
     (response) => {
-        // Do something with response data
+        if (response.status === 401) {
+            // logout
+            // redirectionez pe login
+            // sters din local storage
+        }
         return response
     },
     (error) => {
