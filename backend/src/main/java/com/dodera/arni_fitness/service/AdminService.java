@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -258,11 +258,84 @@ public class AdminService {
                 .map(session -> session.getSessionClassEntity().getTitle()).findFirst().orElse("");
     }
 
-    public StatisticsDetails getStatistics(List<Subscription> subscriptions, List<Purchase> purchases,
-                                           List<Membership> memberships, List<Entry> entries,
-                                           List<ClassEntity> classes, List<Session> sessions,
-                                           List<Coach> coaches) {
+    private String getTodayChosenClass(List<Session> sessions) {
+        Map<String, Long> classCounts = sessions.stream()
+                .filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .map(session -> session.getSessionClassEntity().getTitle())
+                .filter(title -> title != null)
+                .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
 
+        return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private String getWeekChosenClass(List<Session> sessions) {
+        Map<String, Long> classCounts = sessions.stream()
+                .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+                .map(session -> session.getSessionClassEntity().getTitle())
+                .filter(title -> title != null)
+                .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
+
+        return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private String getMonthChosenClass(List<Session> sessions) {
+        Map<String, Long> classCounts = sessions.stream()
+                .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusMonths(1)))
+                .map(session -> session.getSessionClassEntity().getTitle())
+                .filter(title -> title != null)
+                .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
+
+        return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private String getYearChosenClass(List<Session> sessions) {
+        Map<String, Long> classCounts = sessions.stream()
+                .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusYears(1)))
+                .map(session -> session.getSessionClassEntity().getTitle())
+                .filter(title -> title != null)
+                .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
+
+        return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private String getMostPopularCoachToday(List<Session> sessions) {
+        Map<String, Long> coachCounts = sessions.stream()
+                .filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .map(session -> session.getCoach().getName())
+                .filter(name -> name != null)
+                .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
+
+        return coachCounts.isEmpty() ? "" : Collections.max(coachCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private String getMostPopularCoachWeek(List<Session> sessions) {
+        Map<String, Long> coachCounts = sessions.stream()
+                .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+                .map(session -> session.getCoach().getName())
+                .filter(name -> name != null)
+                .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
+
+        return coachCounts.isEmpty() ? "" : Collections.max(coachCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    private String getMostPopularCoachMonth(List<Session> sessions) {
+        Map<String, Long> coachCounts = sessions.stream()
+                .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusMonths(1)))
+                .map(session -> session.getCoach().getName())
+                .filter(name -> name != null)
+                .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
+
+        return coachCounts.isEmpty() ? "" : Collections.max(coachCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
+    }
+
+    public StatisticsDetails getStatistics() {
+        List<Purchase> purchases = purchaseRepository.findAll();
+        List<Membership> memberships = membershipRepository.findAll();
+        List<ClassEntity> classEntities = classRepository.findAll();
+        List<Session> sessions = sessionRepository.findAll();
+        List<Coach> coaches = coachRepository.findAll();
+        List<Entry> entries = entryRepository.findAll();
+        List<Subscription> subscriptions = subscriptionRepository.findAll();
         Membership mostChosenMembership = getMostChosenMembership(memberships);
 
         return new StatisticsDetails(
@@ -271,19 +344,25 @@ public class AdminService {
                 getTodayEntries(entries),
                 getMonthlyRevenue(purchases),
                 memberships.size(),
-                classes.size(),
+                classEntities.size(),
                 coaches.size(),
                 getTodayReservations(sessions),
                 getTodayFullSessions(sessions),
-                "Nume clasa",
-                "Nume clasa",
-                "Nume clasa",
-                "Nume clasa",
-                mostChosenMembership != null ? mostChosenMembership.getTitle() : null
+                getTodayChosenClass(sessions),
+                getWeekChosenClass(sessions),
+                getMonthChosenClass(sessions),
+                getYearChosenClass(sessions),
+                getMostPopularCoachToday(sessions),
+                getMostPopularCoachWeek(sessions),
+                getMostPopularCoachMonth(sessions),
+                mostChosenMembership != null ? mostChosenMembership.getTitle() : null,
+                mostChosenMembership != null ? mostChosenMembership.getPurchases().size() : null
         );
     }
 
-    public List<MembershipDetails> getMembershipsDetails(List<Membership> memberships) {
+    public List<MembershipDetails> getMembershipsDetails() {
+        List<Membership> memberships = membershipRepository.findAll();
+
         return memberships.stream().map(membership -> {
             return new MembershipDetails(
                     membership.getTitle(),
@@ -353,8 +432,8 @@ public class AdminService {
         List<User> users = userRepository.findAll();
 
         return new AdminDetailsResponse(
-                getStatistics(subscriptionRepository.findAll(), purchases, memberships, entryRepository.findAll(), classEntities, sessions, coaches),
-                getMembershipsDetails(memberships),
+                getStatistics(),
+                getMembershipsDetails(),
                 getClassesDetails(classEntities, sessions),
                 null,
                 getClientsDetails(users),

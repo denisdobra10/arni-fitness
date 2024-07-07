@@ -13,7 +13,7 @@ public class StatisticsDetails {
     private int activeMemberships;
     private int todaysClients;
     private int monthlyRevenue;
-    private int todayMemberships;
+    private int createdMemberships;
     private int createdClasses;
     private int createdCoaches;
     private int todaysReservations;
@@ -24,8 +24,11 @@ public class StatisticsDetails {
     private String monthChosenClass;
     private String yearChosenClass;
     // STATISTICI DESPRE ANTRENORI
-
+    private String mostPopularCoachToday;
+    private String mostPopularCoachWeek;
+    private String mostPopularCoachMonth;
     // CEA MAI ALEASA CLASA
     private String mostChosenMembership;
+    private Integer mostChoseMembershipCount;
 
 }

@@ -1,5 +1,9 @@
 package com.dodera.arni_fitness.controller;
 
+import com.dodera.arni_fitness.dto.details.ClientDetails;
+import com.dodera.arni_fitness.dto.details.MembershipDetails;
+import com.dodera.arni_fitness.dto.details.SessionDetails;
+import com.dodera.arni_fitness.dto.details.StatisticsDetails;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
@@ -33,6 +37,41 @@ public class AdminController {
     public AdminDetailsResponse getDetails() {
         return adminService.getDetails();
     }
+
+    @GetMapping("/statistics")
+    public StatisticsDetails getStatistics() {
+        return adminService.getStatistics();
+    }
+
+//    @GetMapping("/memberships")
+//    public List<MembershipDetails> getMembership() {
+//        return adminService.getMembershipsDetails();
+//    }
+//
+//    @GetMapping("/classes")
+//    public StatisticsDetails pulamea() {
+//        return adminService.getStatistics();
+//    }
+//
+//    @GetMapping("/coaches")
+//    public StatisticsDetails pulata() {
+//        return adminService.getStatistics();
+//    }
+//
+//    @GetMapping("/sessions")
+//    public List<SessionDetails> getSessions() {
+//        return adminService.getSessions();
+//    }
+//
+//    @GetMapping("/clients")
+//    public List<ClientDetails> getClients() {
+//        return adminService.getClients();
+//    }
+//
+//    @GetMapping("/inventory")
+//    public StatisticsDetails getStatistics() {
+//        return adminService.getStatistics();
+//    }
 
     //
     @PostMapping("/checkin/{pin}")
