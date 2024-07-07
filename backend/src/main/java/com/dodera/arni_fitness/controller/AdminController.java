@@ -23,8 +23,6 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    // ADMIN
-
     // Endpoint pentru a lua toate detaliile
     @GetMapping("/statistics")
     public StatisticsDetails getStatistics() {
@@ -78,6 +76,22 @@ public class AdminController {
         return adminService.deleteMembership(id);
     }
 
+    // Endpoint-uri pentru clase
+    @PostMapping("/classes")
+    public ClassEntity addClass(@RequestBody ClassRequest classRequest) {
+        return adminService.addClass(classRequest);
+    }
+
+    @PostMapping("/classes/assign")
+    public List<ClassDetails> assignCoachToClass(@RequestBody AssignCoachRequest assignCoachRequest) {
+        return adminService.assignCoachToClass(assignCoachRequest.classId(), assignCoachRequest.coachId());
+    }
+
+    @DeleteMapping("/classes/{id}")
+    public String deleteClass(@PathVariable Long id) {
+        return adminService.deleteClass(id);
+    }
+
     // Endpoint-uri pentru inventar
     @GetMapping("/items")
     public List<Item> getItems() {
@@ -106,17 +120,6 @@ public class AdminController {
     public List<CoachDetails> addCoach(@RequestBody Coach coach) {
         adminService.addCoach(coach);
         return null;
-    }
-
-    // Endpoint-uri pentru clase
-    @PostMapping("/classes")
-    public ClassEntity addClass(@RequestBody ClassRequest classRequest) {
-        return adminService.addClass(classRequest);
-    }
-
-    @DeleteMapping("/classes/{id}")
-    public String deleteClass(@PathVariable Long id) {
-        return adminService.deleteClass(id);
     }
 
     // Endpoint-uri pentru antrenamente
