@@ -2,8 +2,10 @@ package com.dodera.arni_fitness.controller;
 
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
 import com.dodera.arni_fitness.service.UserService;
+import com.stripe.model.checkout.Session;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -31,8 +33,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/purchase/{subscriptionId}")
-    public UserDetailsResponse purchaseSubscription(@PathVariable Long userId, @PathVariable Long subscriptionId) {
-        userService.purchaseSubscription(userId, subscriptionId);
-        return userService.getUserDetails(userId);
+    public String purchaseSubscription(@PathVariable Long userId, @PathVariable Long subscriptionId) {
+        return userService.purchaseSubscription(userId, subscriptionId);
     }
 }

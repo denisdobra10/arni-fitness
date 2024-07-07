@@ -175,7 +175,7 @@ public class UserService {
         reservationRepository.delete(reservation);
     }
 
-    public void purchaseSubscription(Long userId, Long membershipId) {
+    public String purchaseSubscription(Long userId, Long membershipId) {
         try {
             User user = userRepository.findById(userId).orElseThrow(()
                     -> new IllegalArgumentException("Invalid user id"));
@@ -183,23 +183,23 @@ public class UserService {
             Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
                     -> new IllegalArgumentException("Invalid membership id"));
 
-            Purchase purchase = new Purchase();
-            purchase.setUser(user);
-            purchase.setMembership(membership);
-            purchase.setDatetime(LocalDateTime.now());
-            purchase.setPaymentLink("https://example.com/payment");
-            purchaseRepository.save(purchase);
-
-            Subscription subscription = new Subscription();
-            subscription.setPurchase(purchase);
-            subscription.setStartDate(LocalDateTime.now());
-            subscription.setEntriesLeft(membership.getEntries());
-            subscription.setPeriod(membership.getAvailability());
-            subscriptionRepository.save(subscription);
-
-            user.setLastSubscription(subscription);
-            userRepository.save(user);
-//            stripeService.handleSubscriptionCreation(userId, membershipId);
+//            Purchase purchase = new Purchase();
+//            purchase.setUser(user);
+//            purchase.setMembership(membership);
+//            purchase.setDatetime(LocalDateTime.now());
+//            purchase.setPaymentLink("https://example.com/payment");
+//            purchaseRepository.save(purchase);
+//
+//            Subscription subscription = new Subscription();
+//            subscription.setPurchase(purchase);
+//            subscription.setStartDate(LocalDateTime.now());
+//            subscription.setEntriesLeft(membership.getEntries());
+//            subscription.setPeriod(membership.getAvailability());
+//            subscriptionRepository.save(subscription);
+//
+//            user.setLastSubscription(subscription);
+//            userRepository.save(user);
+            return stripeService.handleSubscriptionCreation(userId, membershipId);
         } catch (Exception e) {
             throw new IllegalArgumentException("Eroare la crearea abonamentului");
         }

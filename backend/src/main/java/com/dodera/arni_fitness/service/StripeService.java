@@ -13,10 +13,13 @@ import com.stripe.model.Price;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.InvoiceCreateParams;
 import com.stripe.param.PriceCreateParams;
 import com.stripe.param.ProductCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class StripeService {
@@ -26,6 +29,7 @@ public class StripeService {
     public StripeService(UserRepository userRepository, MembershipRepository membershipRepository) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
+        Stripe.apiKey = "sk_test_51PYYqtRoyfxq4ZhIzdbgKVjzRR4kurLUJryrHV5CCOfkUwQbrJvpGW5BTrQJTBMkqMUo3GS8DXFpZD8Nh3cOPDag00OpYD9wUm";
     }
 
     public String handleProductCreation(MembershipRequest membershipRequest) throws StripeException {
@@ -34,19 +38,14 @@ public class StripeService {
                         .setName(membershipRequest.title())
                         .setActive(true)
                         .setDescription(membershipRequest.description())
+                        .setDefaultPriceData(ProductCreateParams.DefaultPriceData.builder()
+                                .setCurrency("ron")
+                                .setUnitAmount((long) membershipRequest.price() * 100)
+                                .build())
                         .build();
         Product product = Product.create(params);
 
-        PriceCreateParams priceParams =
-                PriceCreateParams.builder()
-                        .setProduct(product.getId())
-                        .setCurrency("ron")
-                        .setUnitAmount((long) membershipRequest.price() * 100)
-                        .build();
-
-        Price price = Price.create(priceParams);
-
-        return price.getId();
+        return product.getId();
     }
 
     public String handleCustomerCreation(SignUpRequest signUpRequest) throws StripeException {
@@ -61,27 +60,40 @@ public class StripeService {
         return customer.getId();
     }
 
-    public void handleSubscriptionCreation(Long userId, Long membershipId) throws StripeException {
+    public String handleSubscriptionCreation(Long userId, Long membershipId) throws StripeException {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Nu exista userul cu acest id."));
 
         Membership membership = membershipRepository.findById(membershipId).orElseThrow(() -> new IllegalArgumentException("Nu exista abonamentul cu acest id."));
 
         Customer customer = Customer.retrieve(user.getStripeCustomerId());
-        Price productPrice = Price.retrieve(membership.getStripeProductId());
+        Product product = Product.retrieve(membership.getStripeProductId());
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
                         .setSuccessUrl("https://example.com/success")
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
-                                        .setPrice(productPrice.getId())
+                                        .setPrice(product.getDefaultPrice())
                                         .setQuantity(1L)
                                         .build()
                         )
-                        .setCustomer(customer.getId())
+                        .setBillingAddressCollection(SessionCreateParams.BillingAddressCollection.REQUIRED)
+                        .setInvoiceCreation(SessionCreateParams.InvoiceCreation.builder().setEnabled(true).build())
+                                .setCustomer(customer.getId())
                         .setMode(SessionCreateParams.Mode.PAYMENT)
+                        .setTaxIdCollection(SessionCreateParams.TaxIdCollection.builder().setEnabled(true).build())
+                        .setCustomerUpdate(SessionCreateParams.CustomerUpdate.builder()
+                                .setName(SessionCreateParams.CustomerUpdate.Name.AUTO)
+                                .setAddress(SessionCreateParams.CustomerUpdate.Address.AUTO).build())
+                        .setConsentCollection(SessionCreateParams.ConsentCollection.builder()
+                                .setPaymentMethodReuseAgreement(
+                                        SessionCreateParams.ConsentCollection.PaymentMethodReuseAgreement.builder()
+                                                .setPosition(SessionCreateParams.ConsentCollection.PaymentMethodReuseAgreement.Position.AUTO).build()).build())
+//                        .putAllMetadata(Map.of("customer", customer.toString(), "product", product.toString()))
                         .build();
         Session session = Session.create(params);
+
+        return session.getUrl();
         // Create a subscription for the customer
         // with the product
     }
