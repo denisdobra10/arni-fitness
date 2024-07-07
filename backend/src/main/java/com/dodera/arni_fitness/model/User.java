@@ -17,6 +17,7 @@ import java.util.List;
 @ToString
 public class User {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,9 +38,10 @@ public class User {
     @Column(length = 4, unique = true)
     private Integer pin;
 
-    @Column(nullable = false)
+    @Column
     private String phoneNumber;
 
+    @JsonIgnore
     @Column
     private String stripeCustomerId;
 

@@ -52,7 +52,9 @@ public class AuthenticationService {
             user.setName(signUpRequest.name());
             user.setEmail(signUpRequest.email());
             user.setPassword(passwordEncoder.encode(signUpRequest.password()));
-            user.setPhoneNumber(signUpRequest.phoneNumber());
+            if (signUpRequest.phoneNumber() != null && !signUpRequest.phoneNumber().isEmpty()) {
+                user.setPhoneNumber(signUpRequest.phoneNumber());
+            }
             user.setPin(generateRandomPin());
             user.setStripeCustomerId(stripeCustomerId);
             user.setCreatedAt(LocalDateTime.now());

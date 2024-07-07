@@ -1,9 +1,15 @@
 package com.dodera.arni_fitness.controller;
 
+import com.dodera.arni_fitness.dto.AvailableSession;
+import com.dodera.arni_fitness.dto.details.MembershipDetails;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
 import com.dodera.arni_fitness.service.UserService;
 import com.stripe.model.checkout.Session;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin("*")
 @RestController
@@ -15,25 +21,40 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{userId}/details")
-    public UserDetailsResponse getUserDetails(@PathVariable Long userId) {
-        return userService.getUserDetails(userId);
+    @GetMapping("/details")
+    public UserDetailsResponse getUserDetails() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getUserDetails(email);
     }
 
-    @PostMapping("/{userId}/reserveSession/{sessionId}")
-    public UserDetailsResponse reserveSession(@PathVariable Long userId, @PathVariable Long sessionId) {
-        userService.reserveSession(userId, sessionId);
-        return userService.getUserDetails(userId);
+    @PostMapping("/reserveSession/{sessionId}")
+    public UserDetailsResponse reserveSession(@PathVariable Long sessionId) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userService.reserveSession(email, sessionId);
+        return userService.getUserDetails(email);
     }
 
-    @DeleteMapping("/{userId}/cancelReservation/{reservationId}")
-    public UserDetailsResponse cancelReservation(@PathVariable Long userId, @PathVariable Long reservationId) {
-        userService.cancelReservation(userId, reservationId);
-        return userService.getUserDetails(userId);
+    @DeleteMapping("/cancelReservation/{reservationId}")
+    public UserDetailsResponse cancelReservation(@PathVariable Long reservationId) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        userService.cancelReservation(email, reservationId);
+        return userService.getUserDetails(email);
     }
 
-    @PostMapping("/{userId}/purchase/{subscriptionId}")
-    public String purchaseSubscription(@PathVariable Long userId, @PathVariable Long subscriptionId) {
-        return userService.purchaseSubscription(userId, subscriptionId);
+    @PostMapping("/purchase/{subscriptionId}")
+    public String purchaseSubscription(@PathVariable Long subscriptionId) {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.purchaseSubscription(email, subscriptionId);
+    }
+
+    @GetMapping("/memberships")
+    public List<MembershipDetails> getUserMemberships() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getMemberships(email);
+    }
+
+    @GetMapping("/sessions/{date}")
+    public List<AvailableSession> getAvailableSessions(@PathVariable String date) {
+        return userService.getAvailableSessions(date);
     }
 }

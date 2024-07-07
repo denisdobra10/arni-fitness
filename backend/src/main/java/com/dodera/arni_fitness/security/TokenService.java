@@ -36,9 +36,9 @@ public class TokenService {
         return Optional.of(new UsernamePasswordAuthenticationToken(claims.getSubject(), null, null));
     }
 
-    public String generateToken(String username) {
-        logger.info("Generate JWT Token for user: {}", username);
-        var claims = Jwts.claims().setSubject(username);
+    public String generateToken(String email) {
+        logger.info("Generate JWT Token for user: {}", email);
+        var claims = Jwts.claims().setSubject(email);
 
         return Jwts
                 .builder()

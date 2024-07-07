@@ -2,6 +2,7 @@ package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.*;
 import com.dodera.arni_fitness.dto.details.ActiveReservation;
+import com.dodera.arni_fitness.dto.details.MembershipDetails;
 import com.dodera.arni_fitness.dto.details.PurchaseDetails;
 import com.dodera.arni_fitness.dto.details.SubscriptionDetails;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
@@ -9,6 +10,7 @@ import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -80,14 +82,15 @@ public class UserService {
         return subscriptionDetails;
     }
 
-    public List<AvailableSession> getAvailableSessions() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime midnight = LocalDateTime.of(now.toLocalDate(), LocalTime.MAX);
+    public List<AvailableSession> getAvailableSessions(String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        LocalDateTime startDate = localDate.atStartOfDay();
+        LocalDateTime endDate = localDate.atTime(LocalTime.MAX);
 
         return sessionRepository.findAll()
                 .stream()
-                .filter(session -> session.getDatetime().isAfter(now)
-                        && session.getDatetime().isBefore(midnight))
+                .filter(session -> session.getDatetime().isAfter(startDate)
+                        && session.getDatetime().isBefore(endDate))
                 .map(session -> new AvailableSession(
                         session.getId(),
                         session.getName(),
@@ -121,28 +124,29 @@ public class UserService {
                 }).toList();
     }
 
-    public UserDetailsResponse getUserDetails(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()
+    public UserDetailsResponse getUserDetails(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()
                 -> new IllegalArgumentException("Invalid user id"));
 
-        List<Reservation> reservations = reservationRepository.findAllForUserId(userId);
+        List<Reservation> reservations = reservationRepository.findAllForUserId(user.getId());
 
         return new UserDetailsResponse(
+                user,
                 getSubscriptionDetails(user),
-                getAvailableSessions(),
                 getActiveReservations(reservations),
                 getPurchases(user)
         );
     }
 
-    public void reserveSession(Long userId, Long sessionId) {
-        User user = userRepository.findById(userId).orElseThrow(()
-                -> new IllegalArgumentException("Invalid user id"));
+    public void reserveSession(String email, Long sessionId) {
+        User user = userRepository.findByEmail(email).orElseThrow(()
+                -> new IllegalArgumentException("Invalid user email"));
 
         Session session = sessionRepository.findById(sessionId).orElseThrow(()
                 -> new IllegalArgumentException("Invalid session id"));
 
         if (session.getAvailableSpots() == 0) {
+            //TODO:  adauga userul intr-o lista de astepta
             throw new IllegalArgumentException("Nu mai sunt locuri disponibile");
         }
 
@@ -161,8 +165,8 @@ public class UserService {
         sessionRepository.save(session);
     }
 
-    public void cancelReservation(Long userId, Long reservationId) {
-        User user = userRepository.findById(userId).orElseThrow(()
+    public void cancelReservation(String email, Long reservationId) {
+        User user = userRepository.findByEmail(email).orElseThrow(()
                 -> new IllegalArgumentException("Invalid user id"));
 
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()
@@ -175,9 +179,9 @@ public class UserService {
         reservationRepository.delete(reservation);
     }
 
-    public String purchaseSubscription(Long userId, Long membershipId) {
+    public String purchaseSubscription(String email, Long membershipId) {
         try {
-            User user = userRepository.findById(userId).orElseThrow(()
+            User user = userRepository.findByEmail(email).orElseThrow(()
                     -> new IllegalArgumentException("Invalid user id"));
 
             Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
@@ -199,10 +203,25 @@ public class UserService {
 //
 //            user.setLastSubscription(subscription);
 //            userRepository.save(user);
-            return stripeService.handleSubscriptionCreation(userId, membershipId);
+            return stripeService.handleSubscriptionCreation(email, membershipId);
         } catch (Exception e) {
             throw new IllegalArgumentException("Eroare la crearea abonamentului");
         }
 
+    }
+
+    public List<MembershipDetails> getMemberships(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()
+                -> new IllegalArgumentException("Invalid user id"));
+
+        return membershipRepository.findAll().stream()
+                .map(membership -> new MembershipDetails(
+                        membership.getTitle(),
+                        membership.getDescription(),
+                        null,
+                        membership.getPrice(),
+                        membership.getEntries(),
+                        membership.getAvailability()
+                )).toList();
     }
 }

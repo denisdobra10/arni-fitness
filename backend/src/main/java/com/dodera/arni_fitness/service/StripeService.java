@@ -60,8 +60,8 @@ public class StripeService {
         return customer.getId();
     }
 
-    public String handleSubscriptionCreation(Long userId, Long membershipId) throws StripeException {
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Nu exista userul cu acest id."));
+    public String handleSubscriptionCreation(String email, Long membershipId) throws StripeException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Nu exista userul cu acest id."));
 
         Membership membership = membershipRepository.findById(membershipId).orElseThrow(() -> new IllegalArgumentException("Nu exista abonamentul cu acest id."));
 
