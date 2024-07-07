@@ -1,15 +1,7 @@
-import React, {useEffect, useState} from 'react'
+import React from 'react'
 import { Button, FormControl, TextField } from '@mui/material'
 
-function AddToInventoryWidget(props) {
-
-    const onClick = () => {
-        let numeProdus = document.getElementById('nume-produs').value;
-        let cantitate = document.getElementById('cantitate').value;
-        console.log(numeProdus, cantitate);
-        props.onAdaugaClick({title: numeProdus, quantity: cantitate});
-    }
-
+function AddToInventoryWidget() {
     return (
         <div className="flex flex-col w-full">
             <h2 className='text-3xl text-primary mt-10 mb-3 font-medium'>Adauga in inventar</h2>
@@ -20,7 +12,7 @@ function AddToInventoryWidget(props) {
                 <FormControl className='gap-3'>
                     <TextField id="nume-produs" label="Nume produs" variant="outlined" />
                     <TextField type='number' id="cantitate" label="Cantitate" variant="outlined" />
-                    <Button className='w-full sm:w-1/2 self-center' variant="contained" onClick={() => onClick()}>Adauga</Button>
+                    <Button className='w-full sm:w-1/2 self-center' variant="contained">Adauga</Button>
                 </FormControl>
 
             </div>

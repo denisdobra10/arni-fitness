@@ -10,18 +10,18 @@ import { useData } from './lib/data-provider'
 
 function App() {
 
-  const { isLoading, loadingMessage } = useData();
+    const { isLoading, loadingMessage } = useData();
 
-  return (
-    <div id='root'>
-        {/*<SignupScreen />*/}
-      {isLoading && <LoadingScreen message={loadingMessage} />}
-       {/*<LoginScreen />*/}
-	{ <AdminDashboard /> }
-    {/*   <UserScreen />*/}
-    {/*   <MembershipScreen />*/}
-    </div>
-  )
+    return (
+        <div id='root'>
+            {/*  <SignupScreen /> */}
+            {isLoading && <LoadingScreen message={loadingMessage} />}
+            {/* <LoginScreen /> */}
+            { <AdminDashboard /> }
+            {/* <UserScreen /> */}
+            {/* <MembershipScreen /> */}
+        </div>
+    )
 }
 
 export default App
