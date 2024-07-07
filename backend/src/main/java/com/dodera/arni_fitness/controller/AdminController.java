@@ -4,7 +4,6 @@ import com.dodera.arni_fitness.dto.details.*;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
-import com.dodera.arni_fitness.dto.response.AdminDetailsResponse;
 import com.dodera.arni_fitness.dto.response.Response;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.service.AdminService;
@@ -46,7 +45,7 @@ public class AdminController {
     public StatisticsDetails getCoachesDetails() {
         return adminService.getStatistics();
     }
-//
+
     @GetMapping("/sessions")
     public List<SessionDetails> getSessions() {
         return adminService.getSessionsDetails();
