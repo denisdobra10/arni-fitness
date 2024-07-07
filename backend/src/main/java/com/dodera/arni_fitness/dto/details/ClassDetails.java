@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ClassDetails {
+    private Long id;
     private String className;
     private int activeReservations;
     private int maxClients;
