@@ -2,12 +2,14 @@ import React, { useRef, useState } from 'react'
 import { useSignupValidator } from '../lib/form-validator';
 import { useData } from '../lib/data-provider';
 import axios from '../utils/axios'
+import { useNavigate } from 'react-router-dom';
 
 const SignupFormular = () => {
 
-    const { displayLoadingScreen, hideLoadingScreen, displayNotification } = useData();
+    const { displayLoadingScreen, hideLoadingScreen, displayNotification, login } = useData();
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const submitButton = useRef(null);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,7 +17,6 @@ const SignupFormular = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
-
 
         const errors = useSignupValidator(formData.name, formData.email, formData.password, formData.confirmPassword);
         if (errors) {
@@ -27,20 +28,17 @@ const SignupFormular = () => {
         submitButton.current.disabled = true;
 
         try {
-            // const response = await axios.post('/register', formData);
-            const response = await fetch('http://localhost:8080/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+            const response = await axios.post('/register', formData);
+            const accessToken = response.data.accessToken;
+
+            await login(accessToken);
 
             displayNotification('Contul a fost creat cu succes', 'success');
 
+            navigate('/user');
+
         } catch (err) {
-            console.log(err.message);
-            displayNotification(err.message || 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
+            displayNotification(err.response.data || 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
         }
 
         submitButton.current.disabled = false;

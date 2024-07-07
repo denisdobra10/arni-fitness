@@ -9,10 +9,11 @@ import LoadingScreen from './components/LoadingScreen';
 import { useData } from './lib/data-provider';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import ErrorPage from './404';
 
 
 function App() {
-  const { isLoading, loadingMessage } = useData();
+  const { isLoading, loadingMessage, isAuthenticated } = useData();
 
   return (
     <Router>
@@ -26,6 +27,7 @@ function App() {
           <Route path="/signup" element={<SignupScreen />} />
           {/* Add a default route */}
           <Route path="/" element={<LoginScreen />} />
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
 
         <ToastContainer />
