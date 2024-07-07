@@ -75,7 +75,6 @@ public class AdminService {
         try {
             Product product = Product.retrieve(membership.getStripeProductId());
             product.update(ProductUpdateParams.builder().setActive(false).build());
-
         } catch (StripeException e) {
             throw new RuntimeException("A aparut o eroare la stergerea subscriptiei.");
         }

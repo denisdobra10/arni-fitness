@@ -17,6 +17,7 @@ import CalendarPage from './pages/calendar-page';
 import ClientiPage from './pages/clienti-page';
 import InventarPage from './pages/inventar-page';
 import AdminLayout from './pages/admin-layout';
+import ConfirmModal from './components/ConfirmModal';
 
 function App() {
   const { isLoading, loadingMessage, isAuthenticated } = useData();
@@ -25,9 +26,13 @@ function App() {
     return isAuthenticated() ? children : <Navigate to="/login" />;
   };
 
+  const { confirmModalOptions } = useData();
+
   return (
     <Router>
       <div id='root'>
+        {confirmModalOptions.show && <ConfirmModal />}
+
         {isLoading && <LoadingScreen message={loadingMessage} />}
         <Routes>
           <Route path="/admin" element={
@@ -51,6 +56,7 @@ function App() {
           <Route path="/" element={<LoginScreen />} />
           <Route path="*" element={<ErrorPage />} />
         </Routes>
+
         <ToastContainer />
       </div>
     </Router>

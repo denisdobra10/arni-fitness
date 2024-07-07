@@ -11,6 +11,12 @@ export const DataProvider = ({ children }) => {
     const [loggedIn, setLoggedIn] = useState(false)
     const [user, setUser] = useState(null);
 
+    const [confirmModalOptions, setConfirmModalOptions] = useState({ message: 'Esti sigur ca vrei sa continui?', onConfirm: () => { }, onCancel: () => { }, show: false, title: 'Confirm', confirmText: 'Confirma', cancelText: 'Renunta' });
+
+    const displayConfirmModal = (message, onConfirm, onCancel, title = 'Confirm', confirmText = 'Confirm', cancelText = 'Cancel') => {
+        setConfirmModalOptions({ message, onConfirm, onCancel, show: true, title, confirmText, cancelText });
+    }
+
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
 
@@ -93,7 +99,7 @@ export const DataProvider = ({ children }) => {
     }
 
     return (
-        <DataContext.Provider value={{ user, setUser, loggedIn, login, logout, setAccessToken, getAccessToken, isLoading, loadingMessage, displayLoadingScreen, hideLoadingScreen, displayNotification, isAuthenticated }}>
+        <DataContext.Provider value={{ user, setUser, loggedIn, login, logout, setAccessToken, getAccessToken, isLoading, loadingMessage, displayLoadingScreen, hideLoadingScreen, displayNotification, isAuthenticated, confirmModalOptions, displayConfirmModal, setConfirmModalOptions }}>
             {children}
         </DataContext.Provider>
     );

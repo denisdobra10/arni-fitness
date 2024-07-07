@@ -8,46 +8,42 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
 import { useState, useEffect } from 'react';
-import dummyimage from '../../assets/logo-dreptunghi.jpeg';
+import axios from '../../utils/axios'
+import { useData } from '../../lib/data-provider';
 
-function createData(
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-) {
-    return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
 
 export default function ClaseActiveTable() {
+
+    const { displayNotification } = useData();
+    const [classes, setClasses] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 600);
+        const fetchClasses = async () => {
+            try {
+                const response = await axios.get('/admin/classes');
+                setClasses(response.data);
+
+                console.log(response.data)
+            } catch (err) {
+                displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
+            }
         };
 
-        window.addEventListener('resize', handleResize);
-
-        handleResize();
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
+        fetchClasses();
     }, []);
 
 
-    const lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.';
-    const truncatedLorem = `${lorem.substring(0, 16)}...`;
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`/admin/classes/${id}`);
+            setClasses(classes.filter((item) => item.id !== id));
+
+            displayNotification('Clasa a fost stearsa cu succes', 'success')
+        } catch (err) {
+            displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
+        }
+    }
 
     return (
         <TableContainer component={Paper}>
@@ -58,26 +54,26 @@ export default function ClaseActiveTable() {
                         <TableCell align="center">Rezervari active</TableCell>
                         <TableCell align="center">Max clienti</TableCell>
                         <TableCell align="center">Antrenori</TableCell>
-                        <TableCell align="center">Poza</TableCell>
+                        {/* <TableCell align="center">Poza</TableCell> */}
                         <TableCell align="center" width={'35%'}>Descriere</TableCell>
                         <TableCell align="center"></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
+                    {classes?.map((row) => (
                         <TableRow
-                            key={row.name}
+                            key={row?.className}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
                             <TableCell component="th" scope="row">
-                                Nume clasa
+                                {row?.className}
                             </TableCell>
-                            <TableCell align="center">22</TableCell>
-                            <TableCell align="center">12</TableCell>
+                            <TableCell align="center">{row?.activeReservations}</TableCell>
+                            <TableCell align="center">{row?.maxClients}</TableCell>
                             <TableCell align="center">Ana Pop, Marius Vlad</TableCell>
-                            <TableCell align="center"><img src={dummyimage} /></TableCell>
-                            <TableCell align="left">{isMobile ? truncatedLorem : lorem}</TableCell>
-                            <TableCell align="center"><Button variant="contained" color="error">Sterge</Button></TableCell>
+                            {/* <TableCell align="center"><img src={dummyimage} /></TableCell> */}
+                            <TableCell align="left">{isMobile ? row?.description.substring(0, 16) + '...' : row?.description}</TableCell>
+                            <TableCell align="center"><Button onClick={() => handleDelete(row.id)} variant="contained" color="error">Sterge</Button></TableCell>
                         </TableRow>
                     ))}
 

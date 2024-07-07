@@ -3,6 +3,7 @@ import { Button, FormControl, TextField } from '@mui/material';
 import { useData } from '../../lib/data-provider';
 import axios from '../../utils/axios'
 import { AxiosError } from 'axios';
+import { useNavigate, useRoutes } from 'react-router-dom';
 
 function CreateAbonamentWidget() {
 
@@ -37,10 +38,11 @@ function CreateAbonamentWidget() {
         e.preventDefault();
 
         try {
-            console.log(formData)
             const response = await axios.post('/admin/memberships', formData);
 
             displayNotification('Abonament creat cu succes', 'success');
+
+            window.location.reload();
         } catch (err: any) {
             const error = err as AxiosError;
             displayNotification(error.response?.data || 'A aparut o eroare la crearea abonamentului', 'error')

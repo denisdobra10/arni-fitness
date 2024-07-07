@@ -29,6 +29,7 @@ export default function AbonamenteTable({ memberships = [] }) {
 
     const { displayNotification } = useData();
     const [isMobile, setIsMobile] = useState(false);
+    const { setConfirmModalOptions, confirmModalOptions, displayConfirmModal } = useData();
 
     useEffect(() => {
         const handleResize = () => {
@@ -47,12 +48,21 @@ export default function AbonamenteTable({ memberships = [] }) {
 
     const handleDelete = async (id: any) => {
 
+        // displayConfirmModal({ show: true, message: 'Esti sigur ca vrei sa stergi acest abonament?', confirmText: 'Sterge', cancelText: 'Anuleaza', onConfirm: () => handleDeleteMembership(id), onCancel: () => { } });
+
+        handleDeleteMembership(id);
+    }
+
+    const handleDeleteMembership = async (id: any) => {
+
         try {
             await axios.delete(`/admin/memberships/${id}`);
-            displayNotification('Abonamentul a fost sters cu succes', 'success')
-        } catch (err: any) {
-            const error = err as AxiosError;
-            displayNotification(error.response?.data || 'A aparut o eroare la stergerea abonamentului', 'error')
+            displayNotification('Abonamentul a fost sters cu succes', 'success');
+            window.location.reload();
+
+        } catch (error) {
+            const err = error as AxiosError;
+            displayNotification(err.response?.data, error);
         }
     }
 
