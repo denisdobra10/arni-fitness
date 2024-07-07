@@ -22,7 +22,7 @@ export const DataProvider = ({ children }) => {
     }
 
     return (
-        <DataContext.Provider value={{ displayLoadingScreen, hideLoadingScreen, displayNotification }}>
+        <DataContext.Provider value={{ isLoading, loadingMessage, displayLoadingScreen, hideLoadingScreen, displayNotification }}>
             {children}
         </DataContext.Provider>
     );
