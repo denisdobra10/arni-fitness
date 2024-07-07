@@ -73,7 +73,7 @@ public class UserService {
         SubscriptionDetails subscriptionDetails = new SubscriptionDetails();
 
         List<Reservation> allReservations = reservationRepository.findAllForUserId(user.getId());
-
+        subscriptionDetails.setName(activeSubscription.getPurchase().getMembership().getTitle());
         subscriptionDetails.setReservationsTomorrow(countReservationsTomorrow(allReservations));
         subscriptionDetails.setReservationsTotal(allReservations.size());
         subscriptionDetails.setWeekReservations(countReservationsThisWeek(allReservations));

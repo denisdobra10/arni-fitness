@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SubscriptionDetails {
+    private String name;
     private long reservationsTomorrow;
     private long reservationsTotal;
     private long weekReservations;
