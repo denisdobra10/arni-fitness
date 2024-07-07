@@ -27,13 +27,20 @@ const SignupFormular = () => {
         submitButton.current.disabled = true;
 
         try {
-            const response = await axios.post('/auth/signup', formData);
+            // const response = await axios.post('/register', formData);
+            const response = await fetch('http://localhost:8080/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
 
             displayNotification('Contul a fost creat cu succes', 'success');
 
         } catch (err) {
             console.log(err.message);
-            displayNotification(err.message | 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
+            displayNotification(err.message || 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
         }
 
         submitButton.current.disabled = false;
