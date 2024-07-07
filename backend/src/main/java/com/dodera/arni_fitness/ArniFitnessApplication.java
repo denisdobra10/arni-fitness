@@ -13,5 +13,4 @@ public class ArniFitnessApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ArniFitnessApplication.class, args);
 	}
-
 }

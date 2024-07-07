@@ -1,7 +1,9 @@
 package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.SignUpRequest;
+import com.dodera.arni_fitness.model.Role;
 import com.dodera.arni_fitness.model.User;
+import com.dodera.arni_fitness.repository.RoleRepository;
 import com.dodera.arni_fitness.repository.UserRepository;
 import com.stripe.exception.StripeException;
 import org.slf4j.Logger;
@@ -9,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AuthenticationService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final StripeService stripeService;
     private final PasswordEncoder passwordEncoder;
@@ -30,7 +32,8 @@ public class AuthenticationService {
         return pin;
     }
 
-    public AuthenticationService(UserRepository userRepository, StripeService stripeService, PasswordEncoder passwordEncoder) {
+    public AuthenticationService(RoleRepository roleRepository, UserRepository userRepository, StripeService stripeService, PasswordEncoder passwordEncoder) {
+        this.roleRepository = roleRepository;
         this.userRepository = userRepository;
         this.stripeService = stripeService;
         this.passwordEncoder = passwordEncoder;
@@ -55,9 +58,12 @@ public class AuthenticationService {
             if (signUpRequest.phoneNumber() != null && !signUpRequest.phoneNumber().isEmpty()) {
                 user.setPhoneNumber(signUpRequest.phoneNumber());
             }
+
+            Role role = roleRepository.findByName("USER").orElseThrow(() -> new RuntimeException("A aparut o eroare"));
             user.setPin(generateRandomPin());
             user.setStripeCustomerId(stripeCustomerId);
             user.setCreatedAt(LocalDateTime.now());
+            user.setRole(role);
             return userRepository.save(user);
         } catch (StripeException e) {
             throw new RuntimeException("A aparut o eroare la crearea contului.");

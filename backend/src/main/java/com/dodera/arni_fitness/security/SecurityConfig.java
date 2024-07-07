@@ -1,8 +1,10 @@
 package com.dodera.arni_fitness.security;
 
+import com.dodera.arni_fitness.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,14 +17,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthEntryPoint unauthorizedHandler;
     private final TokenService tokenService;
+    private final UserRepository userRepository;
 
-    public SecurityConfig(JwtAuthEntryPoint jwtAuthEntryPoint, TokenService tokenService) {
+    public SecurityConfig(JwtAuthEntryPoint jwtAuthEntryPoint, TokenService tokenService, UserRepository userRepository) {
         this.unauthorizedHandler = jwtAuthEntryPoint;
         this.tokenService = tokenService;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -32,7 +37,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(tokenService);
+        return new JwtAuthorizationFilter(userRepository, tokenService);
     }
 
     @Bean
@@ -46,9 +51,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
-                        .requestMatchers("/admin/**").permitAll()
                         .requestMatchers("/forgot_password").permitAll()
                         .requestMatchers("/refresh_token").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

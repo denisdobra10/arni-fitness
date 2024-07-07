@@ -11,6 +11,7 @@ import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Product;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
