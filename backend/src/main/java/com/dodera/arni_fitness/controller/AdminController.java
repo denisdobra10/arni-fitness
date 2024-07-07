@@ -1,18 +1,12 @@
 package com.dodera.arni_fitness.controller;
 
-import com.dodera.arni_fitness.dto.details.ClientDetails;
-import com.dodera.arni_fitness.dto.details.MembershipDetails;
-import com.dodera.arni_fitness.dto.details.SessionDetails;
-import com.dodera.arni_fitness.dto.details.StatisticsDetails;
+import com.dodera.arni_fitness.dto.details.*;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
 import com.dodera.arni_fitness.dto.response.AdminDetailsResponse;
 import com.dodera.arni_fitness.dto.response.Response;
-import com.dodera.arni_fitness.model.ClassEntity;
-import com.dodera.arni_fitness.model.Coach;
-import com.dodera.arni_fitness.model.Item;
-import com.dodera.arni_fitness.model.Membership;
+import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.service.AdminService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,51 +27,45 @@ public class AdminController {
     // ADMIN
 
     // Endpoint pentru a lua toate detaliile
-    @GetMapping("/details")
-    public AdminDetailsResponse getDetails() {
-        return adminService.getDetails();
-    }
-
     @GetMapping("/statistics")
     public StatisticsDetails getStatistics() {
         return adminService.getStatistics();
     }
 
-//    @GetMapping("/memberships")
-//    public List<MembershipDetails> getMembership() {
-//        return adminService.getMembershipsDetails();
-//    }
-//
-//    @GetMapping("/classes")
-//    public StatisticsDetails pulamea() {
-//        return adminService.getStatistics();
-//    }
-//
-//    @GetMapping("/coaches")
-//    public StatisticsDetails pulata() {
-//        return adminService.getStatistics();
-//    }
-//
-//    @GetMapping("/sessions")
-//    public List<SessionDetails> getSessions() {
-//        return adminService.getSessions();
-//    }
-//
-//    @GetMapping("/clients")
-//    public List<ClientDetails> getClients() {
-//        return adminService.getClients();
-//    }
-//
-//    @GetMapping("/inventory")
-//    public StatisticsDetails getStatistics() {
-//        return adminService.getStatistics();
-//    }
+    @GetMapping("/memberships")
+    public List<MembershipDetails> getMembership() {
+        return adminService.getMembershipsDetails();
+    }
 
-    //
+    @GetMapping("/classes")
+    public List<ClassDetails> getClassesDetails() {
+        return adminService.getClassesDetails();
+    }
+
+    @GetMapping("/coaches")
+    public StatisticsDetails getCoachesDetails() {
+        return adminService.getStatistics();
+    }
+//
+    @GetMapping("/sessions")
+    public List<SessionDetails> getSessions() {
+        return adminService.getSessionsDetails();
+    }
+
+    @GetMapping("/clients")
+    public List<ClientDetails> getClients() {
+        return adminService.getClientsDetails();
+    }
+
+    @GetMapping("/inventory")
+    public List<Item> getInventory() {
+        return adminService.getItems();
+    }
+
     @PostMapping("/checkin/{pin}")
-    public AdminDetailsResponse checkinUser(String pin) {
+    public List<ClientDetails> checkinUser(String pin) {
         adminService.checkinUser(pin);
-        return adminService.getDetails();
+        return adminService.getClientsDetails();
     }
 
     // Endpoint-uri pentru creare de abonamente
@@ -116,22 +104,12 @@ public class AdminController {
 
     // Endpoint-uri pentru antrenori
     @PostMapping("/coaches")
-    public AdminDetailsResponse addCoach(@RequestBody Coach coach) {
+    public List<CoachDetails> addCoach(@RequestBody Coach coach) {
         adminService.addCoach(coach);
-        return adminService.getDetails();
-    }
-
-    @GetMapping("/coaches")
-    public List<Coach> getCoaches() {
-        return adminService.getCoaches();
+        return null;
     }
 
     // Endpoint-uri pentru clase
-    @GetMapping("/classes")
-    public List<ClassEntity> getClasses() {
-        return adminService.getClasses();
-    }
-
     @PostMapping("/classes")
     public ClassEntity addClass(@RequestBody ClassRequest classRequest) {
         return adminService.addClass(classRequest);
@@ -144,12 +122,12 @@ public class AdminController {
 
     // Endpoint-uri pentru antrenamente
     @PostMapping("/sessions")
-    public AdminDetailsResponse createSession(@RequestBody SessionRequest sessionRequest) {
+    public List<SessionDetails> createSession(@RequestBody SessionRequest sessionRequest) {
         return adminService.addSession(sessionRequest);
     }
 
     @DeleteMapping("/sessions/{id}")
-    public AdminDetailsResponse deleteSession(@PathVariable Long id) {
+    public List<SessionDetails> deleteSession(@PathVariable Long id) {
         return adminService.deleteSession(id);
     }
 }

@@ -363,19 +363,20 @@ public class AdminService {
     public List<MembershipDetails> getMembershipsDetails() {
         List<Membership> memberships = membershipRepository.findAll();
 
-        return memberships.stream().map(membership -> {
-            return new MembershipDetails(
-                    membership.getTitle(),
-                    membership.getDescription(),
-                    membership.getPurchases().size(),
-                    membership.getPrice(),
-                    membership.getEntries(),
-                    membership.getAvailability()
-            );
-        }).toList();
+        return memberships.stream().map(membership -> new MembershipDetails(
+                membership.getTitle(),
+                membership.getDescription(),
+                membership.getPurchases().size(),
+                membership.getPrice(),
+                membership.getEntries(),
+                membership.getAvailability()
+        )).toList();
     }
 
-    public List<ClassDetails> getClassesDetails(List<ClassEntity> classes, List<Session> sessions) {
+    public List<ClassDetails> getClassesDetails() {
+        List<ClassEntity> classes = classRepository.findAll();
+        List<Session> sessions = sessionRepository.findAll();
+
         return classes.stream().map(classEntity -> new ClassDetails(
                 classEntity.getTitle(),
                 sessions.stream().filter(session
@@ -386,7 +387,9 @@ public class AdminService {
         )).toList();
     }
 
-    public List<SessionDetails> getSessionsDetails(List<Session> sessions) {
+    public List<SessionDetails> getSessionsDetails() {
+        List<Session> sessions = sessionRepository.findAll();
+
         return sessions.stream().map(session -> new SessionDetails(
                 session.getId(),
                 session.getName(),
@@ -397,7 +400,9 @@ public class AdminService {
         )).toList();
     }
 
-    public List<ClientDetails> getClientsDetails(List<User> users) {
+    public List<ClientDetails> getClientsDetails() {
+        List<User> users = userRepository.findAll();
+
         return users.stream().map(user -> {
             String paymentLink = "";
             boolean isActive = false;
@@ -420,25 +425,6 @@ public class AdminService {
 
     public List<Item> getInventoryDetails() {
         return itemRepository.findAll();
-    }
-
-    public AdminDetailsResponse getDetails() {
-        List<Purchase> purchases = purchaseRepository.findAll();
-        List<Membership> memberships = membershipRepository.findAll();
-        List<ClassEntity> classEntities = classRepository.findAll();
-        List<Session> sessions = sessionRepository.findAll();
-        List<Coach> coaches = coachRepository.findAll();
-        List<Item> items = itemRepository.findAll();
-        List<User> users = userRepository.findAll();
-
-        return new AdminDetailsResponse(
-                getStatistics(),
-                getMembershipsDetails(),
-                getClassesDetails(classEntities, sessions),
-                null,
-                getClientsDetails(users),
-                getInventoryDetails()
-        );
     }
 
     public void checkinUser(String pin) {
@@ -465,7 +451,7 @@ public class AdminService {
         subscriptionRepository.save(lastSubscription);
     }
 
-    public AdminDetailsResponse addSession(SessionRequest sessionRequest) {
+    public List<SessionDetails> addSession(SessionRequest sessionRequest) {
         ClassEntity classEntity = classRepository.findById(sessionRequest.classId()).orElseThrow(
                 () -> new IllegalArgumentException("Nu exista aceasta clasa."));
         Coach coach = coachRepository.findById(sessionRequest.coachId()).orElseThrow(
@@ -478,11 +464,11 @@ public class AdminService {
         session.setCoach(coach);
         session.setSessionClassEntity(classEntity);
         sessionRepository.save(session);
-        return getDetails();
+        return getSessionsDetails();
     }
 
-    public AdminDetailsResponse deleteSession(Long id) {
+    public List<SessionDetails> deleteSession(Long id) {
         sessionRepository.deleteById(id);
-        return getDetails();
+        return getSessionsDetails();
     }
 }
