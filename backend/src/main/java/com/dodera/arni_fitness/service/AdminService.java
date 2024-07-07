@@ -10,6 +10,7 @@ import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Product;
+import com.stripe.param.ProductUpdateParams;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -73,7 +74,8 @@ public class AdminService {
 
         try {
             Product product = Product.retrieve(membership.getStripeProductId());
-            product.delete();
+            //product.delete();
+            product.update(ProductUpdateParams.builder().setActive(false).build());
         } catch (StripeException e) {
             throw new RuntimeException("A aparut o eroare la stergerea subscriptiei.");
         }
