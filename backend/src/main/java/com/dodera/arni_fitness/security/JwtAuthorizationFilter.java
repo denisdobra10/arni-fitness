@@ -1,5 +1,7 @@
 package com.dodera.arni_fitness.security;
 
+import com.dodera.arni_fitness.model.User;
+import com.dodera.arni_fitness.repository.UserRepository;
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,9 +17,11 @@ import java.io.IOException;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthorizationFilter.class);
 
+    private final UserRepository userRepository;
     private final TokenService tokenService;
 
-    public JwtAuthorizationFilter(TokenService tokenService) {
+    public JwtAuthorizationFilter(UserRepository userRepository, TokenService tokenService) {
+        this.userRepository = userRepository;
         this.tokenService = tokenService;
     }
 
@@ -38,10 +42,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
         bearerToken = bearerToken.substring(7);
+        String email = tokenService.extractEmail(bearerToken);
+        if (email == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "INVALID SESSION");
+            return;
+        }
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
-        final var authentication = tokenService.getAuthenticationForJwt(bearerToken);
+        final var authentication = tokenService.getAuthenticationForJwt(bearerToken, user.getAuthorities());
         if (authentication.isPresent()) {
             SecurityContextHolder.getContext().setAuthentication(authentication.get());
+
             filterChain.doFilter(request, response);
         } else {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "INVALID SESSION");

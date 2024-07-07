@@ -216,6 +216,7 @@ public class UserService {
 
         return membershipRepository.findAll().stream()
                 .map(membership -> new MembershipDetails(
+                        membership.getId(),
                         membership.getTitle(),
                         membership.getDescription(),
                         null,

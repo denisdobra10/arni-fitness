@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/")
 public class AuthController {
@@ -26,7 +26,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         User loggedInUser = authService.loginUser(loginRequest.email(), loginRequest.password());
-        String jwtToken = tokenService.generateToken(loginRequest.email());
+        String jwtToken = tokenService.generateToken(loginRequest.email(), loggedInUser.getRole().getName());
 
         return new ResponseEntity<>(new LoginResponse(jwtToken), HttpStatus.OK);
     }
@@ -35,7 +35,7 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         User registeredUser = authService.registerUser(signUpRequest);
 
-        String jwtToken = tokenService.generateToken(registeredUser.getEmail());
+        String jwtToken = tokenService.generateToken(registeredUser.getEmail(), registeredUser.getRole().getName());
 
         return new ResponseEntity<>(new LoginResponse(jwtToken), HttpStatus.OK);
 

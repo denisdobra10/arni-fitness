@@ -15,12 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TokenService {
@@ -31,14 +31,19 @@ public class TokenService {
 
     public TokenService() {}
 
-    public Optional<Authentication> getAuthenticationForJwt(String jwtToken) {
+    public Optional<Authentication> getAuthenticationForJwt(String jwtToken, Collection<? extends GrantedAuthority> authorities) {
         Claims claims = this.extractAllClaims(jwtToken);
-        return Optional.of(new UsernamePasswordAuthenticationToken(claims.getSubject(), null, null));
+        return Optional.of(new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities));
     }
 
-    public String generateToken(String email) {
+    public String extractRoles(String token) {
+        return extractAllClaims(token).get("roles", String.class);
+    }
+
+    public String generateToken(String email, String role) {
         logger.info("Generate JWT Token for user: {}", email);
         var claims = Jwts.claims().setSubject(email);
+        claims.put("roles", role);
 
         return Jwts
                 .builder()

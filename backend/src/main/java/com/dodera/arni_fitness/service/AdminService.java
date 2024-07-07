@@ -5,7 +5,6 @@ import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.CoachInfo;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
-import com.dodera.arni_fitness.dto.response.AdminDetailsResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
@@ -364,6 +363,7 @@ public class AdminService {
         List<Membership> memberships = membershipRepository.findAll();
 
         return memberships.stream().map(membership -> new MembershipDetails(
+                membership.getId(),
                 membership.getTitle(),
                 membership.getDescription(),
                 membership.getPurchases().size(),

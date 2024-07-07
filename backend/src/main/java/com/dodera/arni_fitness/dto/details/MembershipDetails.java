@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class MembershipDetails {
+    private Long id;
     private String name;
     private String description;
     private Integer sold;
