@@ -1,13 +1,11 @@
 import React, { useRef, useState } from 'react'
-import { auth, db } from '../lib/firebase-service'
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useSignupValidator } from '../lib/form-validator';
-import { ref, set } from 'firebase/database';
 import { useData } from '../lib/data-provider';
+import axios from '../utils/axios'
 
 const SignupFormular = () => {
 
-    const { setIsLoading, setLoadingMessage } = useData();
+    const { displayLoadingScreen, hideLoadingScreen, displayNotification } = useData();
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const submitButton = useRef(null);
 
@@ -15,41 +13,31 @@ const SignupFormular = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
+
 
         const errors = useSignupValidator(formData.name, formData.email, formData.password, formData.confirmPassword);
         if (errors) {
-            alert(errors);
-        } else {
-            setLoadingMessage('Se creeaza contul...');
-            setIsLoading(true);
-            submitButton.current.disabled = true;
-            createUserWithEmailAndPassword(auth, formData.email, formData.password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    set(ref(db, `users/${user.uid}`), {
-                        authId: user.uid,
-                        name: formData.name,
-                        email: formData.email,
-                        role: 'user'
-                    }).catch((error) => {
-                        alert('A aparut o eroare la crearea contului. Va rugam sa contactati un administrator.');
-                    });
-
-                    console.log(user);
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.log(errorCode, errorMessage);
-                })
-                .finally(() => {
-                    setLoadingMessage('Loading...');
-                    setIsLoading(false);
-                    submitButton.current.disabled = false;
-                });
+            displayNotification(errors, 'warning');
+            return;
         }
+
+        displayLoadingScreen('Se creeaza contul...');
+        submitButton.current.disabled = true;
+
+        try {
+            const response = await axios.post('/auth/signup', formData);
+
+            displayNotification('Contul a fost creat cu succes', 'success');
+
+        } catch (err) {
+            console.log(err.message);
+            displayNotification(err.message | 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
+        }
+
+        submitButton.current.disabled = false;
+        hideLoadingScreen();
     }
 
     return (
@@ -82,6 +70,7 @@ const SignupFormular = () => {
                 <span>Ai deja un cont?</span>
                 <a href="#" className='italic underline font-bold'>Conecteaza-te</a>
             </div>
+
         </div>
     )
 }

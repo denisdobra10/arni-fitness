@@ -23,7 +23,7 @@ const LoginFormular = () => {
 
             <div className="flex flex-row gap-4 self-end items-center">
                 <span className='text-base text-primary font-light'>Nu ai un cont?</span>
-                <a href='#' className='bg-primary px-8 text-base py-2 text-center text-white font-bold rounded'>Inregistreaza-te</a>
+                <Link to={'/signup'} className='bg-primary px-8 text-base py-2 text-center text-white font-bold rounded'>Inregistreaza-te</Link>
             </div>
 
             <div className="w-full h-[0.5px] bg-slate-600"></div>
