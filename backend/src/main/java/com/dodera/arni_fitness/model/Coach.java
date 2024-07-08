@@ -1,5 +1,6 @@
 package com.dodera.arni_fitness.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class Coach {
     @NotBlank
     private String description;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "coach_classes",

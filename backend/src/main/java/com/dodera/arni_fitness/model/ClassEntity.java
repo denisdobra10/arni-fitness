@@ -1,9 +1,12 @@
 package com.dodera.arni_fitness.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -24,4 +27,8 @@ public class ClassEntity {
 
     @Column
     private Integer availableSpots;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "coachedClasses")
+    private List<Coach> coaches;
 }

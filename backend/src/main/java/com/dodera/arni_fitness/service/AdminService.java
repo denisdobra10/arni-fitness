@@ -5,6 +5,7 @@ import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.CoachInfo;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
+import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
@@ -385,6 +386,7 @@ public class AdminService {
         return classes.stream().map(classEntity -> new ClassDetails(
                 classEntity.getId(),
                 classEntity.getTitle(),
+                classEntity.getCoaches().stream().map(Coach::getName).toList(),
                 sessions.stream().filter(session
                         -> session.getSessionClassEntity().getId().equals(classEntity.getId()) && session.getDatetime().isAfter(LocalDateTime.now()))
                         .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum(),
@@ -476,5 +478,16 @@ public class AdminService {
     public List<SessionDetails> deleteSession(Long id) {
         sessionRepository.deleteById(id);
         return getSessionsDetails();
+    }
+
+    public ClassPageResponse getClassPageDetails() {
+        return new ClassPageResponse(
+                getCoaches(),
+                getClassesDetails()
+        );
+    }
+
+    public List<CoachDetails> getCoachesDetails() {
+        return List.of();
     }
 }

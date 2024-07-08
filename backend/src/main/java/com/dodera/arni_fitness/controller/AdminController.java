@@ -4,6 +4,7 @@ import com.dodera.arni_fitness.dto.details.*;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
+import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.dto.response.Response;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.service.AdminService;
@@ -37,6 +38,11 @@ public class AdminController {
     @GetMapping("/classes")
     public List<ClassDetails> getClassesDetails() {
         return adminService.getClassesDetails();
+    }
+
+    @GetMapping("/classes/coaches")
+    public ClassPageResponse getClassDetails() {
+        return adminService.getClassPageDetails();
     }
 
     @GetMapping("/coaches")
@@ -119,7 +125,13 @@ public class AdminController {
     @PostMapping("/coaches")
     public List<CoachDetails> addCoach(@RequestBody Coach coach) {
         adminService.addCoach(coach);
-        return null;
+        return adminService.getCoachesDetails();
+    }
+
+    @DeleteMapping("/coaches/{id}")
+    public List<CoachDetails> deleteCoach(@PathVariable Long id) {
+        adminService.deleteCoach(id);
+        return adminService.getCoachesDetails();
     }
 
     // Endpoint-uri pentru antrenamente
