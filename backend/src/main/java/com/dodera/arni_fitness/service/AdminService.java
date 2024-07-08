@@ -411,7 +411,8 @@ public class AdminService {
     public List<ClientDetails> getClientsDetails() {
         List<User> users = userRepository.findAll();
 
-        return users.stream().map(user -> {
+        return users.stream().filter(user -> user.getRole().getName().equals("USER"))
+                .map(user -> {
             String paymentLink = "";
             boolean isActive = false;
             Subscription lastSubscription = user.getLastSubscription();
@@ -421,6 +422,7 @@ public class AdminService {
             }
 
             return new ClientDetails(
+                    user.getId(),
                     user.getName(),
                     user.getEmail(),
                     user.getPhoneNumber(),
