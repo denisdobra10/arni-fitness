@@ -121,6 +121,17 @@ public class AdminController {
         return new ResponseEntity<>(new Response("Item deleted successfully"), HttpStatus.OK);
     }
 
+    @PostMapping("/items/{id}/increase")
+    public Item increaseQuantity(@PathVariable Long id) {
+        return adminService.increaseQuantity(id);
+    }
+
+    @PostMapping("/items/{id}/decrease")
+    public List<Item> decreaseQuantity(@PathVariable Long id) {
+        adminService.decreaseQuantity(id);
+        return adminService.getItems();
+    }
+
     // Endpoint-uri pentru antrenori
     @PostMapping("/coaches")
     public List<CoachDetails> addCoach(@RequestBody Coach coach) {

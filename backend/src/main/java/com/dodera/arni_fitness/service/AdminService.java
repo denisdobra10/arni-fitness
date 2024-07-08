@@ -490,4 +490,20 @@ public class AdminService {
     public List<CoachDetails> getCoachesDetails() {
         return List.of();
     }
+
+    public Item increaseQuantity(Long id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la modificarea produsului."));
+        item.setQuantity(item.getQuantity() + 1);
+        return itemRepository.save(item);
+    }
+
+    public void decreaseQuantity(Long id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la modificarea produsului."));
+        if (item.getQuantity() == 1) {
+            itemRepository.deleteById(id);
+            return;
+        }
+        item.setQuantity(item.getQuantity() - 1);
+        itemRepository.save(item);
+    }
 }
