@@ -23,12 +23,8 @@ import java.util.Map;
 
 @Service
 public class StripeService {
-    private final UserRepository userRepository;
-    private final MembershipRepository membershipRepository;
 
-    public StripeService(UserRepository userRepository, MembershipRepository membershipRepository) {
-        this.userRepository = userRepository;
-        this.membershipRepository = membershipRepository;
+    public StripeService() {
         Stripe.apiKey = "sk_test_51PYYqtRoyfxq4ZhIzdbgKVjzRR4kurLUJryrHV5CCOfkUwQbrJvpGW5BTrQJTBMkqMUo3GS8DXFpZD8Nh3cOPDag00OpYD9wUm";
     }
 
@@ -60,11 +56,7 @@ public class StripeService {
         return customer.getId();
     }
 
-    public String handleSubscriptionCreation(String email, Long membershipId) throws StripeException {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Nu exista userul cu acest id."));
-
-        Membership membership = membershipRepository.findById(membershipId).orElseThrow(() -> new IllegalArgumentException("Nu exista abonamentul cu acest id."));
-
+    public String handleSubscriptionCreation(User user, Membership membership) throws StripeException {
         Customer customer = Customer.retrieve(user.getStripeCustomerId());
         Product product = Product.retrieve(membership.getStripeProductId());
 
@@ -89,8 +81,8 @@ public class StripeService {
                                 .setPaymentMethodReuseAgreement(
                                         SessionCreateParams.ConsentCollection.PaymentMethodReuseAgreement.builder()
                                                 .setPosition(SessionCreateParams.ConsentCollection.PaymentMethodReuseAgreement.Position.AUTO).build()).build())
-//                        .putAllMetadata(Map.of("customer", customer.toString(), "product", product.toString()))
                         .build();
+
         Session session = Session.create(params);
 
         return session.getUrl();

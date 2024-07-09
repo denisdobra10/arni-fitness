@@ -2,7 +2,9 @@ package com.dodera.arni_fitness.controller;
 
 import com.dodera.arni_fitness.dto.AvailableSession;
 import com.dodera.arni_fitness.dto.details.MembershipDetails;
+import com.dodera.arni_fitness.dto.response.PurchaseResponse;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
+import com.dodera.arni_fitness.model.Purchase;
 import com.dodera.arni_fitness.service.UserService;
 import com.stripe.model.checkout.Session;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,7 +44,7 @@ public class UserController {
     }
 
     @PostMapping("/purchase/{subscriptionId}")
-    public String purchaseSubscription(@PathVariable Long subscriptionId) {
+    public PurchaseResponse purchaseSubscription(@PathVariable Long subscriptionId) {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userService.purchaseSubscription(email, subscriptionId);
     }

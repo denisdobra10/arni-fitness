@@ -6,6 +6,7 @@ import com.dodera.arni_fitness.model.User;
 import com.dodera.arni_fitness.repository.RoleRepository;
 import com.dodera.arni_fitness.repository.UserRepository;
 import com.stripe.exception.StripeException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -30,13 +32,6 @@ public class AuthenticationService {
         }
 
         return pin;
-    }
-
-    public AuthenticationService(RoleRepository roleRepository, UserRepository userRepository, StripeService stripeService, PasswordEncoder passwordEncoder) {
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-        this.stripeService = stripeService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(SignUpRequest signUpRequest) {

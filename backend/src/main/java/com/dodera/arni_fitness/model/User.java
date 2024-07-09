@@ -27,9 +27,6 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String authid;
-
     @Column(nullable = false)
     private String name;
 
@@ -57,6 +54,7 @@ public class User implements UserDetails {
     @JoinColumn(name = "last_subscription_id", referencedColumnName = "id")
     private Subscription lastSubscription;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
@@ -66,6 +64,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Purchase> purchases;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -75,26 +74,31 @@ public class User implements UserDetails {
         return authorities;
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return this.getEmail();
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;

@@ -5,9 +5,11 @@ import com.dodera.arni_fitness.dto.details.ActiveReservation;
 import com.dodera.arni_fitness.dto.details.MembershipDetails;
 import com.dodera.arni_fitness.dto.details.PurchaseDetails;
 import com.dodera.arni_fitness.dto.details.SubscriptionDetails;
+import com.dodera.arni_fitness.dto.response.PurchaseResponse;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,6 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
@@ -24,17 +27,8 @@ public class UserService {
     private final SessionRepository sessionRepository;
     private final MembershipRepository membershipRepository;
     private final PurchaseRepository purchaseRepository;
+    private final NotificationsService notificationsService;
     private final StripeService stripeService;
-
-    public UserService(UserRepository userRepository, ReservationRepository reservationRepository, SubscriptionRepository subscriptionRepository, SessionRepository sessionRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, StripeService stripeService) {
-        this.userRepository = userRepository;
-        this.reservationRepository = reservationRepository;
-        this.subscriptionRepository = subscriptionRepository;
-        this.sessionRepository = sessionRepository;
-        this.membershipRepository = membershipRepository;
-        this.purchaseRepository = purchaseRepository;
-        this.stripeService = stripeService;
-    }
 
     private int countReservationsTomorrow(List<Reservation> reservations) {
         LocalDateTime startOfTomorrow = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
@@ -153,6 +147,7 @@ public class UserService {
 
         if (session.getAvailableSpots() == 0) {
             //TODO:  adauga userul intr-o lista de astepta
+            notificationsService.addNotification(email, session.getId());
             throw new IllegalArgumentException("Nu mai sunt locuri disponibile");
         }
 
@@ -183,15 +178,19 @@ public class UserService {
         sessionRepository.save(session);
 
         reservationRepository.delete(reservation);
+
+        notificationsService.checkForNotifications(email, session.getId());
     }
 
-    public String purchaseSubscription(String email, Long membershipId) {
+    public PurchaseResponse purchaseSubscription(String email, Long membershipId) {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(()
                     -> new IllegalArgumentException("Invalid user id"));
 
             Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
                     -> new IllegalArgumentException("Invalid membership id"));
+
+            String checkoutLink = stripeService.handleSubscriptionCreation(user, membership);
 
 //            Purchase purchase = new Purchase();
 //            purchase.setUser(user);
@@ -209,7 +208,7 @@ public class UserService {
 //
 //            user.setLastSubscription(subscription);
 //            userRepository.save(user);
-            return stripeService.handleSubscriptionCreation(email, membershipId);
+            return new PurchaseResponse(checkoutLink);
         } catch (Exception e) {
             throw new IllegalArgumentException("Eroare la crearea abonamentului");
         }
