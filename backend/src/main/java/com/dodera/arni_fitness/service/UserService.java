@@ -142,6 +142,12 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(()
                 -> new IllegalArgumentException("Invalid user email"));
 
+        Subscription userSubscription = user.getLastSubscription();
+
+        if (userSubscription == null || userSubscription.getStartDate().isBefore(LocalDateTime.now().minusDays(userSubscription.getPeriod()))) {
+            throw new IllegalArgumentException("Nu ai un abonament activ");
+        }
+
         Session session = sessionRepository.findById(sessionId).orElseThrow(()
                 -> new IllegalArgumentException("Invalid session id"));
 

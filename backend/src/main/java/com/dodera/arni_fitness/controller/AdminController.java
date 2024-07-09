@@ -46,8 +46,8 @@ public class AdminController {
     }
 
     @GetMapping("/coaches")
-    public StatisticsDetails getCoachesDetails() {
-        return adminService.getStatistics();
+    public List<CoachDetails> getCoachesDetails() {
+        return adminService.getCoachesDetails();
     }
 
     @GetMapping("/sessions")

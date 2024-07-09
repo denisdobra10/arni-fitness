@@ -179,19 +179,6 @@ public class AdminService {
         return coachRepository.findAll();
     }
 
-    public List<CoachInfo> getCoachesInfo() {
-        LocalDateTime today = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-        LocalDateTime startOfWeek = today.minus(1, ChronoUnit.WEEKS);
-        LocalDateTime startOfMonth = today.minus(1, ChronoUnit.MONTHS);
-        List<CoachInfo> coachInfos = new ArrayList<>();
-
-        for (Coach coach : getCoaches()) {
-            CoachInfo coachInfo = new CoachInfo(coach.getName(), new CoachClassStatistics());
-        }
-
-        return coachInfos;
-    }
-
     // METODE PENTRU INVENTAR
 
     public void deleteItem(Long id) {
@@ -490,7 +477,49 @@ public class AdminService {
     }
 
     public List<CoachDetails> getCoachesDetails() {
-        return List.of();
+        return getCoaches().stream().map(coach -> new CoachDetails(
+                coach.getId(),
+                coach.getName(),
+                coach.getDescription(),
+                getCoachTotalClients(coach),
+                getCoachWeeklyClients(coach),
+                coach.getCoachedClasses().stream().map(classEntity -> new CoachClassStatistics(
+                        classEntity.getId(),
+                        classEntity.getTitle(),
+                        getClassTotalClients(classEntity),
+                        getClassMonthlyClients(classEntity),
+                        getClassWeeklyClients(classEntity),
+                        getClassDailyClients(classEntity)
+                )).toList()
+        )).toList();
+    }
+
+    private Integer getClassTotalClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getClassMonthlyClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusMonths(1)))
+                .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getClassWeeklyClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+                .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getClassDailyClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getCoachWeeklyClients(Coach coach) {
+        return coach.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+                .mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getCoachTotalClients(Coach coach) {
+        return coach.getSessions().stream().mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
     }
 
     public Item increaseQuantity(Long id) {

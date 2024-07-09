@@ -2,6 +2,7 @@ package com.dodera.arni_fitness.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -31,4 +32,9 @@ public class ClassEntity {
     @JsonIgnore
     @ManyToMany(mappedBy = "coachedClasses")
     private List<Coach> coaches;
+
+    @JsonIgnore
+    @JsonManagedReference
+    @OneToMany(mappedBy = "sessionClassEntity")
+    private List<Session> sessions;
 }

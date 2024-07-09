@@ -1,11 +1,15 @@
 package com.dodera.arni_fitness.dto.details;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class CoachClassStatistics {
+    private Long id;
     private String className;
-    private int totalClients;
-    private int weeklyClients;
-    private int monthlyClients;
+    private Integer totalClients;
+    private Integer weeklyClients;
+    private Integer monthlyClients;
+    private Integer todayClients;
 }
