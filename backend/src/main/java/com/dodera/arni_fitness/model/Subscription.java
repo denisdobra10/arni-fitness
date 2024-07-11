@@ -19,7 +19,7 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "purchase_id", nullable = false)
     @JsonBackReference
     private Purchase purchase;

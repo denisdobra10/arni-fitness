@@ -2,6 +2,7 @@ package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.SignUpRequest;
+import com.dodera.arni_fitness.mail.MailService;
 import com.dodera.arni_fitness.model.Membership;
 import com.dodera.arni_fitness.model.Purchase;
 import com.dodera.arni_fitness.model.Subscription;
@@ -31,12 +32,14 @@ public class StripeService {
     private final MembershipRepository membershipRepository;
     private final PurchaseRepository purchaseRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final MailService mailService;
 
-    public StripeService(UserRepository userRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, SubscriptionRepository subscriptionRepository) {
+    public StripeService(UserRepository userRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, SubscriptionRepository subscriptionRepository, MailService mailService) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.purchaseRepository = purchaseRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.mailService = mailService;
         Stripe.apiKey = "sk_test_51PYYqtRoyfxq4ZhIzdbgKVjzRR4kurLUJryrHV5CCOfkUwQbrJvpGW5BTrQJTBMkqMUo3GS8DXFpZD8Nh3cOPDag00OpYD9wUm";
     }
 
@@ -115,7 +118,6 @@ public class StripeService {
                 Purchase purchase = purchaseRepository.findByStripeCheckoutSessionId(session.getId()).orElseThrow(() -> new RuntimeException("Purchase not found"));
                 purchase.setStatus("PAID");
                 purchase.setPaymentLink(invoice.getHostedInvoiceUrl());
-                purchase = purchaseRepository.save(purchase);
 
                 Membership membership = purchase.getMembership();
                 Subscription subscription = new Subscription();
@@ -123,10 +125,10 @@ public class StripeService {
                 subscription.setEntriesLeft(membership.getEntries());
                 subscription.setPeriod(membership.getAvailability());
                 subscription.setStartDate(LocalDateTime.now());
-                subscription = subscriptionRepository.save(subscription);
 
                 user.setLastSubscription(subscription);
                 userRepository.save(user);
+//                mailService.sendPaymentMessage(user.getEmail(), user.getName(), purchase.getPaymentLink(), membership);
             }
         } catch (Exception e) {
             return;

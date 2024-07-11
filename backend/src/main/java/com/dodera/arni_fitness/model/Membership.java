@@ -34,7 +34,7 @@ public class Membership {
     @NotBlank
     private String description;
 
-    @Column
+    @Column(name = "stripe_product_id", nullable = false, unique = true)
     private String stripeProductId;
 
     @JsonIgnore

@@ -50,7 +50,7 @@ public class User implements UserDetails {
     @Column
     private LocalDateTime createdAt;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "last_subscription_id", referencedColumnName = "id")
     private Subscription lastSubscription;
 
@@ -61,7 +61,7 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Purchase> purchases;
 
     @JsonIgnore

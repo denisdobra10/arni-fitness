@@ -1,5 +1,6 @@
 package com.dodera.arni_fitness.mail;
 
+import com.dodera.arni_fitness.model.Membership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,7 +14,7 @@ public class MailService {
 
     public void sendWelcomeMessage(String toEmail, String name) {
         String subject = "Bine ai venit!";
-        String text = String.format("Hello", name, "https://doderasoft.com/");
+        String text = EmailTemplates.getWelcomeEmail(name);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("test@doderasoft.com");
@@ -21,6 +22,17 @@ public class MailService {
         message.setSubject(subject);
         message.setText(text);
         emailSender.send(message);
+    }
+
+    public void sendPaymentMessage(String toEmail, String name, String paymentLink, Membership membership) {
+        String subject = "Iti multumim pentru achizitie!";
+        String text = EmailTemplates.getPaymentEmail(name, membership.getTitle(), membership.getPrice(), paymentLink);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("test@doderasoft.com");
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(text);
     }
 
     public void sendTextMessage(String to, String subject, String text) {

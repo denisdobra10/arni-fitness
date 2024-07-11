@@ -1,10 +1,12 @@
 package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.SignUpRequest;
+import com.dodera.arni_fitness.mail.MailService;
 import com.dodera.arni_fitness.model.Role;
 import com.dodera.arni_fitness.model.User;
 import com.dodera.arni_fitness.repository.RoleRepository;
 import com.dodera.arni_fitness.repository.UserRepository;
+import com.dodera.arni_fitness.utils.ErrorType;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final StripeService stripeService;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     private Integer generateRandomPin() {
         int pin = ThreadLocalRandom.current().nextInt(1000, 10000);
@@ -36,14 +39,14 @@ public class AuthenticationService {
 
     public User registerUser(SignUpRequest signUpRequest) {
         if (userRepository.findByEmail(signUpRequest.email()).isPresent()) {
-            throw new IllegalArgumentException("Acest email este deja folosit.");
+            throw new IllegalArgumentException(ErrorType.USED_EMAIL);
         }
 
         try {
             String stripeCustomerId = stripeService.handleCustomerCreation(signUpRequest);
 
             if (stripeCustomerId == null || stripeCustomerId.isEmpty()) {
-                throw new RuntimeException("A aparut o eroare la crearea contului.");
+                throw new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR);
             }
 
             User user = new User();
@@ -54,36 +57,31 @@ public class AuthenticationService {
                 user.setPhoneNumber(signUpRequest.phoneNumber());
             }
 
-            Role role = roleRepository.findByName("USER").orElseThrow(() -> new RuntimeException("A aparut o eroare"));
+            Role role = roleRepository.findByName("USER").orElseThrow(() -> new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR));
             user.setPin(generateRandomPin());
             user.setStripeCustomerId(stripeCustomerId);
             user.setCreatedAt(LocalDateTime.now());
             user.setRole(role);
-            return userRepository.save(user);
+            user = userRepository.save(user);
+//            mailService.sendWelcomeMessage(user.getEmail(), user.getName());
+            return user;
         } catch (StripeException e) {
-            throw new RuntimeException("A aparut o eroare la crearea contului.");
+            throw new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR);
         }
     }
 
     public User loginUser(String email, String password) {
         try {
-            logger.info("Logging in attempted by user with email: {}", email);
-
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> {
-                        logger.info("User not found for login attempt with email: " + email);
-                        return new IllegalArgumentException("User not found");
-                    });
+                    .orElseThrow(() -> new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS));
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
-                logger.info("Invalid password provided for login attempt with email: " + email);
+                throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);
+            }
 
-        throw new IllegalArgumentException("Invalid password"); }
-
-            logger.info("User with email: " + email + " has successfully logged in");
             return user;
         } catch (Exception e) {
-            throw new IllegalArgumentException("User not found");
+            throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);
         }
     }
 
