@@ -1,5 +1,7 @@
 package com.dodera.arni_fitness.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -23,6 +25,7 @@ public class Coach {
     @NotBlank
     private String description;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "coach_classes",
@@ -30,6 +33,11 @@ public class Coach {
         inverseJoinColumns = @JoinColumn(name = "class_id")
     )
     private List<ClassEntity> coachedClasses;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "coach")
+    @JsonManagedReference
+    private List<Session> sessions;
 
     @Override
     public boolean equals(Object obj) {

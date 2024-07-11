@@ -5,6 +5,7 @@ import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.CoachInfo;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
+import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
@@ -176,19 +177,6 @@ public class AdminService {
 
     public List<Coach> getCoaches() {
         return coachRepository.findAll();
-    }
-
-    public List<CoachInfo> getCoachesInfo() {
-        LocalDateTime today = LocalDateTime.of(LocalDate.now(), LocalTime.MIDNIGHT);
-        LocalDateTime startOfWeek = today.minus(1, ChronoUnit.WEEKS);
-        LocalDateTime startOfMonth = today.minus(1, ChronoUnit.MONTHS);
-        List<CoachInfo> coachInfos = new ArrayList<>();
-
-        for (Coach coach : getCoaches()) {
-            CoachInfo coachInfo = new CoachInfo(coach.getName(), new CoachClassStatistics());
-        }
-
-        return coachInfos;
     }
 
     // METODE PENTRU INVENTAR
@@ -385,6 +373,7 @@ public class AdminService {
         return classes.stream().map(classEntity -> new ClassDetails(
                 classEntity.getId(),
                 classEntity.getTitle(),
+                classEntity.getCoaches().stream().map(Coach::getName).toList(),
                 sessions.stream().filter(session
                         -> session.getSessionClassEntity().getId().equals(classEntity.getId()) && session.getDatetime().isAfter(LocalDateTime.now()))
                         .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum(),
@@ -409,7 +398,8 @@ public class AdminService {
     public List<ClientDetails> getClientsDetails() {
         List<User> users = userRepository.findAll();
 
-        return users.stream().map(user -> {
+        return users.stream().filter(user -> user.getRole().getName().equals("USER"))
+                .map(user -> {
             String paymentLink = "";
             boolean isActive = false;
             Subscription lastSubscription = user.getLastSubscription();
@@ -419,6 +409,7 @@ public class AdminService {
             }
 
             return new ClientDetails(
+                    user.getId(),
                     user.getName(),
                     user.getEmail(),
                     user.getPhoneNumber(),
@@ -476,5 +467,74 @@ public class AdminService {
     public List<SessionDetails> deleteSession(Long id) {
         sessionRepository.deleteById(id);
         return getSessionsDetails();
+    }
+
+    public ClassPageResponse getClassPageDetails() {
+        return new ClassPageResponse(
+                getCoaches(),
+                getClassesDetails()
+        );
+    }
+
+    public List<CoachDetails> getCoachesDetails() {
+        return getCoaches().stream().map(coach -> new CoachDetails(
+                coach.getId(),
+                coach.getName(),
+                coach.getDescription(),
+                getCoachTotalClients(coach),
+                getCoachWeeklyClients(coach),
+                coach.getCoachedClasses().stream().map(classEntity -> new CoachClassStatistics(
+                        classEntity.getId(),
+                        classEntity.getTitle(),
+                        getClassTotalClients(classEntity),
+                        getClassMonthlyClients(classEntity),
+                        getClassWeeklyClients(classEntity),
+                        getClassDailyClients(classEntity)
+                )).toList()
+        )).toList();
+    }
+
+    private Integer getClassTotalClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getClassMonthlyClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusMonths(1)))
+                .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getClassWeeklyClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+                .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getClassDailyClients(ClassEntity classEntity) {
+        return classEntity.getSessions().stream().filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
+                .mapToInt(session -> classEntity.getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getCoachWeeklyClients(Coach coach) {
+        return coach.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+                .mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    private Integer getCoachTotalClients(Coach coach) {
+        return coach.getSessions().stream().mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
+    }
+
+    public Item increaseQuantity(Long id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la modificarea produsului."));
+        item.setQuantity(item.getQuantity() + 1);
+        return itemRepository.save(item);
+    }
+
+    public void decreaseQuantity(Long id) {
+        Item item = itemRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la modificarea produsului."));
+        if (item.getQuantity() == 1) {
+            itemRepository.deleteById(id);
+            return;
+        }
+        item.setQuantity(item.getQuantity() - 1);
+        itemRepository.save(item);
     }
 }

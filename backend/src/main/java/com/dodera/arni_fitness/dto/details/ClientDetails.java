@@ -8,6 +8,7 @@ import java.util.List;
     @Data
     @AllArgsConstructor
     public class ClientDetails {
+        private Long id;
         private String name;
         private String email;
         private String phoneNumber;

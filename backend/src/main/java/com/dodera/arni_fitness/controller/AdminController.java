@@ -4,6 +4,7 @@ import com.dodera.arni_fitness.dto.details.*;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
+import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.dto.response.Response;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.service.AdminService;
@@ -39,9 +40,14 @@ public class AdminController {
         return adminService.getClassesDetails();
     }
 
+    @GetMapping("/classes/coaches")
+    public ClassPageResponse getClassDetails() {
+        return adminService.getClassPageDetails();
+    }
+
     @GetMapping("/coaches")
-    public StatisticsDetails getCoachesDetails() {
-        return adminService.getStatistics();
+    public List<CoachDetails> getCoachesDetails() {
+        return adminService.getCoachesDetails();
     }
 
     @GetMapping("/sessions")
@@ -115,11 +121,28 @@ public class AdminController {
         return new ResponseEntity<>(new Response("Item deleted successfully"), HttpStatus.OK);
     }
 
+    @PostMapping("/items/{id}/increase")
+    public Item increaseQuantity(@PathVariable Long id) {
+        return adminService.increaseQuantity(id);
+    }
+
+    @PostMapping("/items/{id}/decrease")
+    public List<Item> decreaseQuantity(@PathVariable Long id) {
+        adminService.decreaseQuantity(id);
+        return adminService.getItems();
+    }
+
     // Endpoint-uri pentru antrenori
     @PostMapping("/coaches")
     public List<CoachDetails> addCoach(@RequestBody Coach coach) {
         adminService.addCoach(coach);
-        return null;
+        return adminService.getCoachesDetails();
+    }
+
+    @DeleteMapping("/coaches/{id}")
+    public List<CoachDetails> deleteCoach(@PathVariable Long id) {
+        adminService.deleteCoach(id);
+        return adminService.getCoachesDetails();
     }
 
     // Endpoint-uri pentru antrenamente
