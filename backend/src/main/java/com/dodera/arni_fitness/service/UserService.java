@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -190,25 +191,18 @@ public class UserService {
             Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
                     -> new IllegalArgumentException("Invalid membership id"));
 
-            String checkoutLink = stripeService.handleSubscriptionCreation(user, membership);
+            Map<String, String> createdSession = stripeService.handleSubscriptionCreation(user, membership);
 
-//            Purchase purchase = new Purchase();
-//            purchase.setUser(user);
-//            purchase.setMembership(membership);
-//            purchase.setDatetime(LocalDateTime.now());
-//            purchase.setPaymentLink("https://example.com/payment");
-//            purchaseRepository.save(purchase);
-//
-//            Subscription subscription = new Subscription();
-//            subscription.setPurchase(purchase);
-//            subscription.setStartDate(LocalDateTime.now());
-//            subscription.setEntriesLeft(membership.getEntries());
-//            subscription.setPeriod(membership.getAvailability());
-//            subscriptionRepository.save(subscription);
-//
-//            user.setLastSubscription(subscription);
-//            userRepository.save(user);
-            return new PurchaseResponse(checkoutLink);
+            Purchase purchase = new Purchase();
+            purchase.setUser(user);
+            purchase.setMembership(membership);
+            purchase.setDatetime(LocalDateTime.now());
+            purchase.setStatus("PENDING");
+            purchase.setPaymentLink("test");
+            purchase.setStripeCheckoutSessionId(createdSession.get("sessionId"));
+            purchaseRepository.save(purchase);
+
+            return new PurchaseResponse(createdSession.get("checkoutLink"));
         } catch (Exception e) {
             throw new IllegalArgumentException("Eroare la crearea abonamentului");
         }

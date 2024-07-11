@@ -44,7 +44,7 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @JsonIgnore
-    @Column
+    @Column(unique = true)
     private String stripeCustomerId;
 
     @Column

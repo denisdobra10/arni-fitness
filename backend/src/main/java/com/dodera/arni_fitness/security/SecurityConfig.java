@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/stripe/**").permitAll()
                         .requestMatchers("/forgot_password").permitAll()
                         .requestMatchers("/refresh_token").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")

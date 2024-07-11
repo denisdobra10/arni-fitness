@@ -3,28 +3,40 @@ package com.dodera.arni_fitness.service;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.SignUpRequest;
 import com.dodera.arni_fitness.model.Membership;
+import com.dodera.arni_fitness.model.Purchase;
+import com.dodera.arni_fitness.model.Subscription;
 import com.dodera.arni_fitness.model.User;
 import com.dodera.arni_fitness.repository.MembershipRepository;
+import com.dodera.arni_fitness.repository.PurchaseRepository;
+import com.dodera.arni_fitness.repository.SubscriptionRepository;
 import com.dodera.arni_fitness.repository.UserRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
-import com.stripe.model.Price;
+import com.stripe.model.Invoice;
 import com.stripe.model.Product;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.CustomerCreateParams;
-import com.stripe.param.InvoiceCreateParams;
-import com.stripe.param.PriceCreateParams;
 import com.stripe.param.ProductCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
 public class StripeService {
 
-    public StripeService() {
+    private final UserRepository userRepository;
+    private final MembershipRepository membershipRepository;
+    private final PurchaseRepository purchaseRepository;
+    private final SubscriptionRepository subscriptionRepository;
+
+    public StripeService(UserRepository userRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, SubscriptionRepository subscriptionRepository) {
+        this.userRepository = userRepository;
+        this.membershipRepository = membershipRepository;
+        this.purchaseRepository = purchaseRepository;
+        this.subscriptionRepository = subscriptionRepository;
         Stripe.apiKey = "sk_test_51PYYqtRoyfxq4ZhIzdbgKVjzRR4kurLUJryrHV5CCOfkUwQbrJvpGW5BTrQJTBMkqMUo3GS8DXFpZD8Nh3cOPDag00OpYD9wUm";
     }
 
@@ -56,7 +68,7 @@ public class StripeService {
         return customer.getId();
     }
 
-    public String handleSubscriptionCreation(User user, Membership membership) throws StripeException {
+    public Map<String, String> handleSubscriptionCreation(User user, Membership membership) throws StripeException {
         Customer customer = Customer.retrieve(user.getStripeCustomerId());
         Product product = Product.retrieve(membership.getStripeProductId());
 
@@ -85,8 +97,39 @@ public class StripeService {
 
         Session session = Session.create(params);
 
-        return session.getUrl();
-        // Create a subscription for the customer
-        // with the product
+        return Map.of("checkoutLink", session.getUrl(), "sessionId", session.getId());
+    }
+
+    public void handleCheckoutSessionCompleted(Session session) {
+        if (session == null) {
+            return;
+        }
+        String stripeCustomer = session.getCustomer();
+        String stripeInvoice = session.getInvoice();
+
+        // Handle the checkout session completed event
+        try {
+            User user = userRepository.findByStripeCustomerId(stripeCustomer).orElseThrow(() -> new RuntimeException("User not found"));
+            Invoice invoice = Invoice.retrieve(stripeInvoice);
+            if (invoice.getPaid()) {
+                Purchase purchase = purchaseRepository.findByStripeCheckoutSessionId(session.getId()).orElseThrow(() -> new RuntimeException("Purchase not found"));
+                purchase.setStatus("PAID");
+                purchase.setPaymentLink(invoice.getHostedInvoiceUrl());
+                purchase = purchaseRepository.save(purchase);
+
+                Membership membership = purchase.getMembership();
+                Subscription subscription = new Subscription();
+                subscription.setPurchase(purchase);
+                subscription.setEntriesLeft(membership.getEntries());
+                subscription.setPeriod(membership.getAvailability());
+                subscription.setStartDate(LocalDateTime.now());
+                subscription = subscriptionRepository.save(subscription);
+
+                user.setLastSubscription(subscription);
+                userRepository.save(user);
+            }
+        } catch (Exception e) {
+            return;
+        }
     }
 }

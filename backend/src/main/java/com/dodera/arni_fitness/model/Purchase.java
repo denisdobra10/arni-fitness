@@ -30,10 +30,16 @@ public class Purchase {
     @JsonBackReference
     private Membership membership;
 
-    @Column(name = "payment_link", nullable = false)
+    @Column(name = "payment_link")
     @NotBlank
     private String paymentLink;
 
     @Column(name = "datetime", nullable = false)
     private LocalDateTime datetime;
+
+    @Column(name = "stripe_checkout_session_id")
+    private String stripeCheckoutSessionId;
+
+    @Column(name = "status", nullable = false)
+    private String status;
 }
