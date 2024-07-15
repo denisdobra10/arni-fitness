@@ -51,8 +51,7 @@ public class UserController {
 
     @GetMapping("/memberships")
     public List<MembershipDetails> getUserMemberships() {
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userService.getMemberships(email);
+        return userService.getMemberships();
     }
 
     @GetMapping("/sessions/{date}")

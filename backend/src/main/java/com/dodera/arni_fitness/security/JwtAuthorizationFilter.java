@@ -52,7 +52,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         final var authentication = tokenService.getAuthenticationForJwt(bearerToken, user.getAuthorities());
         if (authentication.isPresent()) {
             SecurityContextHolder.getContext().setAuthentication(authentication.get());
-
             filterChain.doFilter(request, response);
         } else {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "INVALID SESSION");

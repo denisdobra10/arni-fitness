@@ -2,26 +2,26 @@ package com.dodera.arni_fitness.service;
 
 import com.dodera.arni_fitness.dto.details.*;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
-import com.dodera.arni_fitness.dto.CoachInfo;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
 import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
+import com.dodera.arni_fitness.utils.ErrorType;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Product;
 import com.stripe.param.ProductUpdateParams;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AdminService {
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
@@ -34,26 +34,13 @@ public class AdminService {
     private final SubscriptionRepository subscriptionRepository;
     private final EntryRepository entryRepository;
 
-    public AdminService(UserRepository userRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, ClassRepository classRepository, StripeService stripeService, CoachRepository coachRepository, ItemRepository itemRepository, SessionRepository sessionRepository, SubscriptionRepository subscriptionRepository, EntryRepository entryRepository) {
-        this.userRepository = userRepository;
-        this.membershipRepository = membershipRepository;
-        this.purchaseRepository = purchaseRepository;
-        this.classRepository = classRepository;
-        this.stripeService = stripeService;
-        this.coachRepository = coachRepository;
-        this.itemRepository = itemRepository;
-        this.sessionRepository = sessionRepository;
-        this.subscriptionRepository = subscriptionRepository;
-        this.entryRepository = entryRepository;
-    }
-
     // METODE PENTRU SUBSCRIPTII
 
     public Membership createMembership(MembershipRequest membershipRequest) {
         try {
             String productId = stripeService.handleProductCreation(membershipRequest);
             if (productId == null || productId.isEmpty()) {
-                throw new RuntimeException("A aparut o eroare la crearea subscriptiei.");
+                throw new RuntimeException(ErrorType.MEMBERSHIP_CREATION_ERROR);
             }
 
             var membership = new Membership();
@@ -65,19 +52,19 @@ public class AdminService {
             membership.setStripeProductId(productId);
             return membershipRepository.save(membership);
         } catch (StripeException e) {
-            throw new RuntimeException("A aparut o eroare la crearea subscriptiei.");
+            throw new RuntimeException(ErrorType.MEMBERSHIP_CREATION_ERROR);
         }
     }
 
     public String deleteMembership(Long id) {
         Membership membership = membershipRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("Invalid membership id"));
+                () -> new IllegalArgumentException(ErrorType.MEMBERSHIP_DELETION_ERROR));
 
         try {
             Product product = Product.retrieve(membership.getStripeProductId());
             product.update(ProductUpdateParams.builder().setActive(false).build());
         } catch (StripeException e) {
-            throw new RuntimeException("A aparut o eroare la stergerea subscriptiei.");
+            throw new RuntimeException(ErrorType.MEMBERSHIP_DELETION_ERROR);
         }
 
         membershipRepository.deleteById(id);
@@ -148,8 +135,8 @@ public class AdminService {
     }
 
     public List<ClassDetails> assignCoachToClass(Long classId, Long coachId) {
-        var classEntity = classRepository.findById(classId).orElseThrow(() -> new IllegalArgumentException("Nu exista aceasta clasa."));
-        var coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException("Nu exista acest antrenor."));
+        var classEntity = classRepository.findById(classId).orElseThrow(() -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
+        var coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         coach.getCoachedClasses().add(classEntity);
         coachRepository.save(coach);
@@ -254,7 +241,7 @@ public class AdminService {
         Map<String, Long> classCounts = sessions.stream()
                 .filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
                 .map(session -> session.getSessionClassEntity().getTitle())
-                .filter(title -> title != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
 
         return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -264,7 +251,7 @@ public class AdminService {
         Map<String, Long> classCounts = sessions.stream()
                 .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
                 .map(session -> session.getSessionClassEntity().getTitle())
-                .filter(title -> title != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
 
         return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -274,7 +261,7 @@ public class AdminService {
         Map<String, Long> classCounts = sessions.stream()
                 .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusMonths(1)))
                 .map(session -> session.getSessionClassEntity().getTitle())
-                .filter(title -> title != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
 
         return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -284,7 +271,7 @@ public class AdminService {
         Map<String, Long> classCounts = sessions.stream()
                 .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusYears(1)))
                 .map(session -> session.getSessionClassEntity().getTitle())
-                .filter(title -> title != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(title -> title, Collectors.counting()));
 
         return classCounts.isEmpty() ? "" : Collections.max(classCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -294,7 +281,7 @@ public class AdminService {
         Map<String, Long> coachCounts = sessions.stream()
                 .filter(session -> session.getDatetime().toLocalDate().isEqual(LocalDate.now()))
                 .map(session -> session.getCoach().getName())
-                .filter(name -> name != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
 
         return coachCounts.isEmpty() ? "" : Collections.max(coachCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -304,7 +291,7 @@ public class AdminService {
         Map<String, Long> coachCounts = sessions.stream()
                 .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
                 .map(session -> session.getCoach().getName())
-                .filter(name -> name != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
 
         return coachCounts.isEmpty() ? "" : Collections.max(coachCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -314,7 +301,7 @@ public class AdminService {
         Map<String, Long> coachCounts = sessions.stream()
                 .filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusMonths(1)))
                 .map(session -> session.getCoach().getName())
-                .filter(name -> name != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
 
         return coachCounts.isEmpty() ? "" : Collections.max(coachCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -420,24 +407,20 @@ public class AdminService {
         }).toList();
     }
 
-    public List<Item> getInventoryDetails() {
-        return itemRepository.findAll();
-    }
-
     public void checkinUser(String pin) {
         User user = userRepository.findByPin(Integer.valueOf(pin)).orElseThrow(() -> new IllegalArgumentException("Nu exista nici un utilizator cu acest pin."));
 
         Subscription lastSubscription = user.getLastSubscription();
         if (lastSubscription == null) {
-            throw new IllegalArgumentException("Utilizatorul nu are nici un abonament activ.");
+            throw new IllegalArgumentException(ErrorType.NO_SUBSCRIPTION_CHECK_IN);
         }
 
         if (lastSubscription.getStartDate().plusDays(lastSubscription.getPeriod()).isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Abonamentul utilizatorului a expirat.");
+            throw new IllegalArgumentException(ErrorType.EXPIRED_SUBSCRIPTION_CHECK_IN);
         }
 
         if (lastSubscription.getEntriesLeft() == 0) {
-            throw new IllegalArgumentException("Utilizatorul a folosit toate intrarile disponibile.");
+            throw new IllegalArgumentException(ErrorType.NO_ENTRIES_LEFT_CHECK_IN);
         }
 
         Entry entry = new Entry();
@@ -450,9 +433,9 @@ public class AdminService {
 
     public List<SessionDetails> addSession(SessionRequest sessionRequest) {
         ClassEntity classEntity = classRepository.findById(sessionRequest.classId()).orElseThrow(
-                () -> new IllegalArgumentException("Nu exista aceasta clasa."));
+                () -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
         Coach coach = coachRepository.findById(sessionRequest.coachId()).orElseThrow(
-                () -> new IllegalArgumentException("Nu exista acest antrenor."));
+                () -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         Session session = new Session();
         session.setName(sessionRequest.name());

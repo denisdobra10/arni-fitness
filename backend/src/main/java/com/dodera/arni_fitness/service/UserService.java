@@ -9,6 +9,7 @@ import com.dodera.arni_fitness.dto.response.PurchaseResponse;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
 import com.dodera.arni_fitness.model.*;
 import com.dodera.arni_fitness.repository.*;
+import com.dodera.arni_fitness.utils.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -108,6 +109,7 @@ public class UserService {
 
     public List<PurchaseDetails> getPurchases(User user) {
         return  user.getPurchases().stream()
+//                .filter(purchase -> purchase.getStatus().equals("PAID"))
                 .map(purchase -> {
                     Membership membership = purchase.getMembership();
                     return new PurchaseDetails(
@@ -121,7 +123,7 @@ public class UserService {
 
     public UserDetailsResponse getUserDetails(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new IllegalArgumentException("Invalid user id"));
+                -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         List<Reservation> reservations = reservationRepository.findAllForUserId(user.getId());
 
@@ -135,25 +137,24 @@ public class UserService {
 
     public void reserveSession(String email, Long sessionId) {
         User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new IllegalArgumentException("Invalid user email"));
+                -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         Subscription userSubscription = user.getLastSubscription();
 
         if (userSubscription == null || userSubscription.getStartDate().isBefore(LocalDateTime.now().minusDays(userSubscription.getPeriod()))) {
-            throw new IllegalArgumentException("Nu ai un abonament activ");
+            throw new IllegalArgumentException(ErrorType.INVALID_SUBSCRIPTION);
         }
 
         Session session = sessionRepository.findById(sessionId).orElseThrow(()
-                -> new IllegalArgumentException("Invalid session id"));
+                -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         if (session.getAvailableSpots() == 0) {
-            //TODO:  adauga userul intr-o lista de astepta
             notificationsService.addNotification(email, session.getId());
-            throw new IllegalArgumentException("Nu mai sunt locuri disponibile");
+            throw new IllegalArgumentException(ErrorType.NO_AVAILABLE_SPOTS);
         }
 
         if (user.getLastSubscription().getEntriesLeft() == 0) {
-            throw new IllegalArgumentException("Nu mai ai intrari disponibile");
+            throw new IllegalArgumentException(ErrorType.NO_ENTRIES_LEFT);
         }
 
         Reservation reservation = new Reservation();
@@ -169,10 +170,10 @@ public class UserService {
 
     public void cancelReservation(String email, Long reservationId) {
         User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new IllegalArgumentException("Invalid user id"));
+                -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()
-                -> new IllegalArgumentException("Invalid reservation id"));
+                -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
         Session session = reservation.getSession();
         session.setAvailableSpots(session.getAvailableSpots() + 1);
@@ -186,10 +187,10 @@ public class UserService {
     public PurchaseResponse purchaseSubscription(String email, Long membershipId) {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(()
-                    -> new IllegalArgumentException("Invalid user id"));
+                    -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
             Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
-                    -> new IllegalArgumentException("Invalid membership id"));
+                    -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
             Map<String, String> createdSession = stripeService.handleSubscriptionCreation(user, membership);
 
@@ -197,22 +198,19 @@ public class UserService {
             purchase.setUser(user);
             purchase.setMembership(membership);
             purchase.setDatetime(LocalDateTime.now());
-            purchase.setStatus("PENDING");
             purchase.setPaymentLink("test");
+            purchase.setStatus("PENDING");
             purchase.setStripeCheckoutSessionId(createdSession.get("sessionId"));
             purchaseRepository.save(purchase);
 
             return new PurchaseResponse(createdSession.get("checkoutLink"));
         } catch (Exception e) {
-            throw new IllegalArgumentException("Eroare la crearea abonamentului");
+            throw new IllegalArgumentException(ErrorType.SUBSCRIPTION_CREATION_ERROR);
         }
 
     }
 
-    public List<MembershipDetails> getMemberships(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new IllegalArgumentException("Invalid user id"));
-
+    public List<MembershipDetails> getMemberships() {
         return membershipRepository.findAll().stream()
                 .map(membership -> new MembershipDetails(
                         membership.getId(),
