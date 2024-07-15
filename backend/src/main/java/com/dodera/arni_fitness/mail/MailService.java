@@ -33,6 +33,7 @@ public class MailService {
         message.setTo(toEmail);
         message.setSubject(subject);
         message.setText(text);
+        emailSender.send(message);
     }
 
     public void sendTextMessage(String to, String subject, String text) {

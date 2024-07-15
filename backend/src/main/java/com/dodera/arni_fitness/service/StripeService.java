@@ -128,7 +128,7 @@ public class StripeService {
 
                 user.setLastSubscription(subscription);
                 userRepository.save(user);
-//                mailService.sendPaymentMessage(user.getEmail(), user.getName(), purchase.getPaymentLink(), membership);
+                mailService.sendPaymentMessage(user.getEmail(), user.getName(), purchase.getPaymentLink(), membership);
             }
         } catch (Exception e) {
             return;
