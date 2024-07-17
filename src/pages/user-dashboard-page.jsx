@@ -12,7 +12,7 @@ const UserDashboardPage = () => {
         <div className="flex flex-col">
 
             <UserDashboardHeader name={user?.user?.name} subscriptionType={'Gold'} />
-            <UserDashboardBody />
+            <UserDashboardBody user={user}/>
 
         </div>
     )

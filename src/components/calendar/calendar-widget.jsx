@@ -5,12 +5,29 @@ import roLocale from '@fullcalendar/core/locales/ro';
 import interactionPlugin from "@fullcalendar/interaction";
 import CalendarModal from './add-to-calendar-modal';
 import EventModal from './event-modal';
+import axios from "../../utils/axios";
+import {useData} from "../../lib/data-provider.jsx";
 
 function CalendarWidget() {
+    const { displayNotification } = useData();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [sessions, setSessions] = useState([]);
+
+    useEffect(() => {
+        const fetchSessions = async () => {
+            try {
+                const response = await axios.get('/admin/sessions');
+                setSessions(response.data);
+            } catch (err) {
+                displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
+            }
+        };
+
+        fetchSessions();
+    }, [isModalOpen]);
 
     function handleDateClick(arg) {
         setSelectedDate(arg.dateStr);
@@ -18,6 +35,7 @@ function CalendarWidget() {
 
     function handleEventClick(arg) {
         setSelectedEvent(arg.event);
+        console.log(setSelectedEvent(arg.event))
     }
 
     function closeModal() {
@@ -49,21 +67,23 @@ function CalendarWidget() {
                 initialView="dayGridMonth"
                 locale={roLocale}
                 weekends={false}
-                events={[
-                    { title: 'Clasa TRX ora 19:30', date: '2024-04-16' },
-                    { title: 'Clasa Cross-fit ora 20:30', date: '2024-04-16' },
-                    { title: 'Clasa Cross-fit ora 20:30', date: '2024-04-16' },
-                    { title: 'Clasa Cross-fit ora 20:30', date: '2024-04-16' }
-                ]}
+                events={sessions.map(session =>
+                {
+                    const title = session.name + " " + session.datetime.split("T")[1];
+                    const date = session.datetime.split("T")[0];
+                    return {
+                        title: title,
+                        date: date,
+                    };
+                })}
                 dateClick={handleDateClick}
                 eventClick={handleEventClick}
             />
             <EventModal
                 isOpen={isEventModalOpen}
                 onClose={closeEventModal}
-                data={selectedEvent}
             />
-            <CalendarModal isOpen={isModalOpen} onClose={closeModal} />
+            <CalendarModal isOpen={isModalOpen} onClose={closeModal} data={selectedDate}/>
         </>
     );
 }

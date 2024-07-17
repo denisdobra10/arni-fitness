@@ -25,6 +25,8 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     (response) => {
         if (response.status === 401) {
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('user')
             // logout
             // redirectionez pe login
             // sters din local storage

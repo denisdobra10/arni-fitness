@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import HeaderTitleWidget from '../components/statistics/header-title-widget'
-import CreateAbonamentWidget from '../components/abonamente/create-abonament-widget'
+import React, { useEffect, useState } from 'react';
+import HeaderTitleWidget from '../components/statistics/header-title-widget';
+import CreateAbonamentWidget from '../components/abonamente/create-abonament-widget';
 import AbonamenteActiveWidget from '../components/abonamente/abonamente-active-widget';
 import { AxiosError } from 'axios';
 import { useData } from '../lib/data-provider';

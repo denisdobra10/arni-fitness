@@ -1,12 +1,38 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import MembershipSubscription from './MembershipSubscription'
+import {useData} from "../../lib/data-provider.jsx";
+import axios from "../../utils/axios";
 
 const MembershipSubscriptions = () => {
+    const { user } = useData();
+    const [subscriptions, setSubscriptions] = useState([]);
+
+    useEffect(() => {
+        const fetchSubscriptions = async () => {
+            try {
+                const response = await axios.get('/user/memberships');
+
+                setSubscriptions(response.data);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        fetchSubscriptions();
+    }, []);
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 my-16">
-            <MembershipSubscription title={'Nume Abonament'} price={35} entries={12} availability={30} description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.'} />
-            <MembershipSubscription title={'Nume Abonament'} price={35} entries={12} availability={30} description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.'} />
-            <MembershipSubscription title={'Nume Abonament'} price={35} entries={12} availability={30} description={'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.'} />
+            {subscriptions.map(subscription => (
+                <MembershipSubscription
+                    key={subscription.id}
+                    subscriptionId={subscription.id}
+                    title={subscription.name}
+                    price={subscription.price}
+                    entries={subscription.entries}
+                    availability={subscription.availability}
+                    description={subscription.description} />
+            ))}
 
         </div>
     )

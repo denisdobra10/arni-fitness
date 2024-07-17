@@ -54,8 +54,8 @@ public class UserController {
         return userService.getMemberships();
     }
 
-    @GetMapping("/sessions/{date}")
-    public List<AvailableSession> getAvailableSessions(@PathVariable String date) {
-        return userService.getAvailableSessions(date);
+    @GetMapping("/sessions")
+    public List<AvailableSession> getAvailableSessions() {
+        return userService.getAvailableSessions();
     }
 }

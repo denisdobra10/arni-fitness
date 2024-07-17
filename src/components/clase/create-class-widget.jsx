@@ -13,11 +13,6 @@ function CreateClassWidget() {
         description: '',
         availableSpots: 0
     });
-    const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleFileChange = (event) => {
-        setSelectedFile(event.target.files[0]);
-    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -25,8 +20,8 @@ function CreateClassWidget() {
         try {
             await axios.post('/admin/classes', formData);
 
-            displayNotification('Clasa a fost creata cu succes', 'success')
             window.location.reload();
+            displayNotification('Clasa a fost creata cu succes', 'success')
         } catch (err) {
             displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
         }

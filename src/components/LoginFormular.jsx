@@ -25,11 +25,16 @@ const LoginFormular = () => {
 
             const response = await axios.post('/login', formData);
             const accessToken = response.data.accessToken;
+            const role = response.data.role;
             await login(accessToken);
 
             displayNotification('Te-ai logat cu succes', 'success');
 
-            navigate('/user');
+            if (role === 'ADMIN') {
+                navigate('/admin');
+            } else {
+                navigate('/user');
+            }
         } catch (err) {
             displayNotification(err.response.data || 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
         }

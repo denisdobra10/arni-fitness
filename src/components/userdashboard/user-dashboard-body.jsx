@@ -26,7 +26,7 @@ const UserDashboardBody = () => {
                 <span>Prezinta acest cod la intrarea in sala de sport</span>
             </div>
 
-            <UserDashboardMainDetails />
+            <UserDashboardMainDetails user={user}/>
             <UserReservation />
             <UserAccountOptions />
 

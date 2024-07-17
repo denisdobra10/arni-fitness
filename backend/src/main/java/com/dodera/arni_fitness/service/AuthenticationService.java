@@ -78,7 +78,6 @@ public class AuthenticationService {
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);
             }
-            mailService.sendWelcomeMessage(user.getEmail(), user.getName());
 
             return user;
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.dodera.arni_fitness.controller;
 import com.dodera.arni_fitness.dto.details.*;
 import com.dodera.arni_fitness.dto.request.ClassRequest;
 import com.dodera.arni_fitness.dto.request.MembershipRequest;
+import com.dodera.arni_fitness.dto.request.PinRequest;
 import com.dodera.arni_fitness.dto.request.SessionRequest;
 import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.dto.response.Response;
@@ -65,9 +66,9 @@ public class AdminController {
         return adminService.getItems();
     }
 
-    @PostMapping("/checkin/{pin}")
-    public List<ClientDetails> checkinUser(String pin) {
-        adminService.checkinUser(pin);
+    @PostMapping("/checkin")
+    public List<ClientDetails> checkinUser(@RequestBody PinRequest pinRequest) {
+        adminService.checkinUser(pinRequest.pin());
         return adminService.getClientsDetails();
     }
 

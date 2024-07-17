@@ -6,5 +6,6 @@ public record SessionRequest(
         String name,
     Long classId,
     Long coachId,
-    LocalDateTime date
+    LocalDateTime date,
+        String observations
 ) { }

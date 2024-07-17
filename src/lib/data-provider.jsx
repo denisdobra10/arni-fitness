@@ -68,6 +68,7 @@ export const DataProvider = ({ children }) => {
     }
 
     const logout = () => {
+        localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         setLoggedIn(false);
     }

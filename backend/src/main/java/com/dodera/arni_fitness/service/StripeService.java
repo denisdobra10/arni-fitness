@@ -77,7 +77,7 @@ public class StripeService {
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setSuccessUrl("https://example.com/success")
+                        .setSuccessUrl("http://localhost:5173/user")
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
                                         .setPrice(product.getDefaultPrice())

@@ -400,6 +400,7 @@ public class AdminService {
                     user.getName(),
                     user.getEmail(),
                     user.getPhoneNumber(),
+                    user.getPin(),
                     user.getCreatedAt().toString(),
                     isActive,
                     paymentLink
@@ -443,6 +444,7 @@ public class AdminService {
         session.setDatetime(sessionRequest.date());
         session.setCoach(coach);
         session.setSessionClassEntity(classEntity);
+        session.setObservations(sessionRequest.observations());
         sessionRepository.save(session);
         return getSessionsDetails();
     }
@@ -460,21 +462,23 @@ public class AdminService {
     }
 
     public List<CoachDetails> getCoachesDetails() {
-        return getCoaches().stream().map(coach -> new CoachDetails(
-                coach.getId(),
-                coach.getName(),
-                coach.getDescription(),
-                getCoachTotalClients(coach),
-                getCoachWeeklyClients(coach),
-                coach.getCoachedClasses().stream().map(classEntity -> new CoachClassStatistics(
-                        classEntity.getId(),
-                        classEntity.getTitle(),
-                        getClassTotalClients(classEntity),
-                        getClassMonthlyClients(classEntity),
-                        getClassWeeklyClients(classEntity),
-                        getClassDailyClients(classEntity)
-                )).toList()
-        )).toList();
+        return getCoaches().stream().map(coach -> {
+            List<ClassEntity> coachedClasses = coach.getCoachedClasses();
+            return new CoachDetails(
+                    coach.getId(),
+                    coach.getName(),
+                    coach.getDescription(),
+                    getCoachTotalClients(coach),
+                    getCoachWeeklyClients(coach),
+                    coachedClasses != null ? coachedClasses.stream().map(classEntity -> new CoachClassStatistics(
+                            classEntity.getId(),
+                            classEntity.getTitle(),
+                            getClassTotalClients(classEntity),
+                            getClassMonthlyClients(classEntity),
+                            getClassWeeklyClients(classEntity),
+                            getClassDailyClients(classEntity)
+                    )).toList() : null);
+        }).toList();
     }
 
     private Integer getClassTotalClients(ClassEntity classEntity) {
@@ -497,12 +501,20 @@ public class AdminService {
     }
 
     private Integer getCoachWeeklyClients(Coach coach) {
-        return coach.getSessions().stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
+        List<Session> coachSessions = coach.getSessions();
+        if (coachSessions == null) {
+            return 0;
+        }
+        return coachSessions.stream().filter(session -> session.getDatetime().isAfter(LocalDateTime.now().minusWeeks(1)))
                 .mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
     }
 
     private Integer getCoachTotalClients(Coach coach) {
-        return coach.getSessions().stream().mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
+        List<Session> coachSessions = coach.getSessions();
+        if (coachSessions == null) {
+            return 0;
+        }
+        return coachSessions.stream().mapToInt(session -> session.getSessionClassEntity().getAvailableSpots() - session.getAvailableSpots()).sum();
     }
 
     public Item increaseQuantity(Long id) {

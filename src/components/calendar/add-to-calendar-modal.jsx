@@ -1,10 +1,81 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal';
 import { FormControl, InputLabel, Select, MenuItem, TextField, Button } from '@mui/material';
+import { useData } from '../../lib/data-provider.jsx';
+import axios from "../../utils/axios";
 
 Modal.setAppElement(document.body);
 
-function CalendarModal({ isOpen, onClose }) {
+function CalendarModal({ isOpen, onClose, data }) {
+    const { displayNotification } = useData();
+    const [coaches, setCoaches] = useState([]);
+    const [classes, setClasses] = useState([]);
+
+    const [coach, setCoach] = useState('');
+    const [selectedClass, setSelectedClass] = useState('');
+    const [time, setTime] = useState('');
+    const [observations, setObservations] = useState('');
+
+    function getClassName(classId) {
+        const cls = classes.find(cls => cls.id === classId);
+        return cls ? cls.className : '';
+    }
+
+    const resetStates = () => {
+        setCoach('');
+        setSelectedClass('');
+        setTime('');
+        setObservations('');
+    }
+
+    const handleCoachChange = (event) => {
+        setCoach(event.target.value);
+    }
+
+    const handleClassChange = (event) => {
+        setSelectedClass(event.target.value);
+    }
+
+    const handleTimeChange = (event) => {
+        setTime(event.target.value);
+    }
+
+    const handleObservationsChange = (event) => {
+        setObservations(event.target.value);
+    }
+
+    useEffect(() => {
+        const fetchClassesAndCoaches = async () => {
+            try {
+                const response = await axios.get('/admin/classes/coaches');
+                setCoaches(response.data.coaches);
+                setClasses(response.data.classes);
+            } catch (err) {
+                displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
+            }
+        };
+
+        fetchClassesAndCoaches();
+    }, []);
+
+    const handleCreateSession = async () => {
+        try {
+            await axios.post('/admin/sessions', {
+                name: getClassName(selectedClass),
+                classId: selectedClass,
+                coachId: coach,
+                date: `${data}T${time}`,
+                observations: observations
+            });
+
+            onClose();
+            resetStates();
+            displayNotification('Antrenamentul a fost setat cu succes', 'success');
+            // window.location.reload();
+        } catch (err) {
+            displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error');
+        }
+    }
 
     const customStyles = {
         overlay: {
@@ -37,10 +108,10 @@ function CalendarModal({ isOpen, onClose }) {
                     labelId="select-class-label"
                     id="select-class"
                     label="Selecteaza clasa"
+                    value={selectedClass}
+                    onChange={handleClassChange}
                 >
-                    <MenuItem value={1}>Clasa 1</MenuItem>
-                    <MenuItem value={2}>Clasa 2</MenuItem>
-                    <MenuItem value={3}>Clasa 3</MenuItem>
+                    {classes.map(cls => <MenuItem key={cls.id} value={cls.id}>{cls.className}</MenuItem>)}
                 </Select>
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>
@@ -49,10 +120,10 @@ function CalendarModal({ isOpen, onClose }) {
                     labelId="select-coach-label"
                     id="select-coach"
                     label="Selecteaza antrenor"
+                    value={coach}
+                    onChange={handleCoachChange}
                 >
-                    <MenuItem value={1}>Antrenor 1</MenuItem>
-                    <MenuItem value={2}>Antrenor 2</MenuItem>
-                    <MenuItem value={3}>Antrenor 3</MenuItem>
+                    {coaches.map(coach => <MenuItem key={coach.id} value={coach.id}>{coach.name}</MenuItem>)}
                 </Select>
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>
@@ -63,6 +134,8 @@ function CalendarModal({ isOpen, onClose }) {
                     InputLabelProps={{
                         shrink: true,
                     }}
+                    value={time}
+                    onChange={handleTimeChange}
                 />
             </FormControl>
             <FormControl fullWidth sx={{ my: 2 }}>
@@ -71,9 +144,11 @@ function CalendarModal({ isOpen, onClose }) {
                     label="Observatii pentru clienti"
                     multiline
                     rows={4}
+                    value={observations}
+                    onChange={handleObservationsChange}
                 />
             </FormControl>
-            <Button onClick={onClose} variant="contained">Seteaza antrenament</Button>
+            <Button variant="contained" onClick={() => handleCreateSession()}>Seteaza antrenament</Button>
         </Modal>
     );
 }
