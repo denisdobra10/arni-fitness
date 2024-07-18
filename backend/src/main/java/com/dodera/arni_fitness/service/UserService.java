@@ -148,6 +148,16 @@ public class UserService {
         Session session = sessionRepository.findById(sessionId).orElseThrow(()
                 -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
+        if (session.getDatetime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Nu se poate rezerva antrenamentul.");
+        }
+
+        Reservation existingReservation = reservationRepository.findByUserAndSession(user, session).orElse(null);
+
+        if (existingReservation != null) {
+            throw new IllegalArgumentException(ErrorType.RESERVATION_EXISTS);
+        }
+
         if (session.getAvailableSpots() == 0) {
             notificationsService.addNotification(email, session.getId());
             throw new IllegalArgumentException(ErrorType.NO_AVAILABLE_SPOTS);
@@ -169,9 +179,6 @@ public class UserService {
     }
 
     public void cancelReservation(String email, Long reservationId) {
-        User user = userRepository.findByEmail(email).orElseThrow(()
-                -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
-
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(()
                 -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
@@ -188,6 +195,13 @@ public class UserService {
         try {
             User user = userRepository.findByEmail(email).orElseThrow(()
                     -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
+
+            if (user.getLastSubscription() != null) {
+                Subscription lastSubscription = user.getLastSubscription();
+                if (lastSubscription.getStartDate().plusDays(lastSubscription.getPeriod()).isAfter(LocalDateTime.now())) {
+                    throw new IllegalArgumentException(ErrorType.HAS_ACTIVE_SUBSCRIPTION);
+                }
+            }
 
             Membership membership = membershipRepository.findById(membershipId).orElseThrow(()
                     -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -14,4 +15,5 @@ public class SessionDetails {
     private String className;
     private String coachName;
     private LocalDateTime datetime;
+    private List<String> clients;
 }

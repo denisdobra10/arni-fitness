@@ -37,6 +37,9 @@ public class Membership {
     @Column(name = "stripe_product_id", nullable = false, unique = true)
     private String stripeProductId;
 
+    @Column(name = "valid")
+    private Boolean valid;
+
     @JsonIgnore
     @OneToMany(mappedBy = "membership")
     @JsonManagedReference

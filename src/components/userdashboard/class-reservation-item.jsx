@@ -14,7 +14,7 @@ const ClassReservationItem = ({ sessionId, className, coach, time, availableSpac
             navigate(0);
             displayNotification('Rezervarea a fost facuta cu succes', 'success');
         } catch (err) {
-            displayNotification(err.response.data.message, 'error');
+            displayNotification(err.response.data, 'error');
             console.log(err);
         }
     }

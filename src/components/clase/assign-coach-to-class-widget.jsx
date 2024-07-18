@@ -54,7 +54,7 @@ function AssignCoachToClassWidget(props) {
                 </Select>
 
                 <Button className='w-full sm:w-1/2 self-center' variant="contained"
-                        onClick={() => assignCoach(gymClass?.id, coach?.id)}>Asociaza antrenor clasei</Button>
+                        onClick={() => assignCoach(gymClass, coach)}>Asociaza antrenor clasei</Button>
 
 
             </div>

@@ -33,6 +33,7 @@ public class AdminService {
     private final SessionRepository sessionRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final EntryRepository entryRepository;
+    private final ReservationRepository reservationRepository;
 
     // METODE PENTRU SUBSCRIPTII
 
@@ -59,8 +60,10 @@ public class AdminService {
     public String deleteMembership(Long id) {
         Membership membership = membershipRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException(ErrorType.MEMBERSHIP_DELETION_ERROR));
-
         try {
+            if (!membership.getPurchases().isEmpty()) {
+                throw new IllegalArgumentException("Acest tip de abonament este folosit. Nu poate fi sters.");
+            }
             Product product = Product.retrieve(membership.getStripeProductId());
             product.update(ProductUpdateParams.builder().setActive(false).build());
         } catch (StripeException e) {
@@ -372,14 +375,18 @@ public class AdminService {
     public List<SessionDetails> getSessionsDetails() {
         List<Session> sessions = sessionRepository.findAll();
 
-        return sessions.stream().map(session -> new SessionDetails(
-                session.getId(),
-                session.getName(),
-                session.getAvailableSpots(),
-                session.getSessionClassEntity().getTitle(),
-                session.getCoach().getName(),
-                session.getDatetime()
-        )).toList();
+        return sessions.stream().map(session -> {
+            List<Reservation> reservations = reservationRepository.findAllBySession(session);
+
+            return new SessionDetails(
+                    session.getId(),
+                    session.getName(),
+                    session.getAvailableSpots(),
+                    session.getSessionClassEntity().getTitle(),
+                    session.getCoach().getName(),
+                    session.getDatetime(),
+                    reservations.stream().map(Reservation::getUser).map(User::getName).toList());
+        }).toList();
     }
 
     public List<ClientDetails> getClientsDetails() {
@@ -450,6 +457,15 @@ public class AdminService {
     }
 
     public List<SessionDetails> deleteSession(Long id) {
+        Session session = sessionRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la stergerea antrenamentului."));
+        if (session.getDatetime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Nu poti sterge un antrenament care a trecut deja.");
+        }
+
+        if (session.getAvailableSpots() < session.getSessionClassEntity().getAvailableSpots()) {
+            throw new IllegalArgumentException("Nu poti sterge un antrenamentul fiindca are rezervari.");
+        }
+
         sessionRepository.deleteById(id);
         return getSessionsDetails();
     }

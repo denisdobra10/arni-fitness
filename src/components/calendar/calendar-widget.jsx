@@ -35,7 +35,6 @@ function CalendarWidget() {
 
     function handleEventClick(arg) {
         setSelectedEvent(arg.event);
-        console.log(setSelectedEvent(arg.event))
     }
 
     function closeModal() {
@@ -72,6 +71,10 @@ function CalendarWidget() {
                     const title = session.name + " " + session.datetime.split("T")[1];
                     const date = session.datetime.split("T")[0];
                     return {
+                        sessionId: session.id,
+                        clients: session.clients,
+                        coachName: session.coachName,
+                        className: session.className,
                         title: title,
                         date: date,
                     };
@@ -80,8 +83,10 @@ function CalendarWidget() {
                 eventClick={handleEventClick}
             />
             <EventModal
+                selectedEvent={selectedEvent}
                 isOpen={isEventModalOpen}
                 onClose={closeEventModal}
+                setSessions={setSessions}
             />
             <CalendarModal isOpen={isModalOpen} onClose={closeModal} data={selectedDate}/>
         </>

@@ -16,4 +16,6 @@ public class ErrorType {
     public static final String EXPIRED_SUBSCRIPTION_CHECK_IN = "Abonamentul utilizatorului a expirat.";
     public static final String NO_ENTRIES_LEFT_CHECK_IN = "Utilizatorul a folosit toate intrarile disponibile.";
 
+    public static final String RESERVATION_EXISTS = "Deja ai rezervat acest antrenament.";
+    public static final String HAS_ACTIVE_SUBSCRIPTION = "Deja ai un abonament activ.";
 }
