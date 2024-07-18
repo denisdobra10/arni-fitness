@@ -20,7 +20,6 @@ function compareDates(date1, date2) {
     // Set the time components to zero
     d1.setHours(0, 0, 0, 0);
     d2.setHours(0, 0, 0, 0);
-    console.log(d1.getTime() === d2.getTime());
     // Compare the dates
     return d1.getTime() === d2.getTime();
 }
@@ -36,7 +35,6 @@ const UserReservation = () => {
 
                 setSessions(response.data);
             } catch (err) {
-                console.log(err);
             }
         }
 

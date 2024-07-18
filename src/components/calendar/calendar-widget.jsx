@@ -50,12 +50,10 @@ function CalendarWidget() {
     useEffect(() => {
         if (selectedEvent && !selectedDate) {
             setIsEventModalOpen(true);
-            console.log(selectedEvent);
         }
 
         if (selectedDate && !selectedEvent) {
             setIsModalOpen(true);
-            console.log(selectedDate);
         }
     }, [selectedEvent, selectedDate]);
 

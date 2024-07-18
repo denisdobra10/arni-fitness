@@ -5,6 +5,7 @@ import axios from "../../utils/axios";
 
 const MembershipSubscriptions = () => {
     const { user } = useData();
+    const { displayNotification } = useData();
     const [subscriptions, setSubscriptions] = useState([]);
 
     useEffect(() => {
@@ -14,7 +15,7 @@ const MembershipSubscriptions = () => {
 
                 setSubscriptions(response.data);
             } catch (err) {
-                console.log(err);
+                displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error');
             }
         }
 

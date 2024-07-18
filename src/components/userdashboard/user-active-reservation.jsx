@@ -15,7 +15,6 @@ const UserActiveReservation = ({ reservationId, dateTime, className, coach }) =>
             displayNotification('Rezervarea a fost anulata cu succes', 'success');
         } catch (err) {
             displayNotification(err.response.data.message, 'error');
-            console.log(err);
         }
     }
 

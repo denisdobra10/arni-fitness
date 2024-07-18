@@ -18,7 +18,6 @@ const MembershipSubscription = ({ subscriptionId, title, price, entries, availab
 
         } catch (err) {
             displayNotification(err.response.data.message, 'error');
-            console.log(err);
         }
     }
 

@@ -45,8 +45,6 @@ function StatisticsPage() {
             try {
                 const response = await axios.get('/admin/statistics');
                 setData(response.data);
-
-                console.log(response.data);
             } catch (err: any) {
                 const error = err as AxiosError;
                 displayNotification(error.response?.data || 'A aparut o eroare la incarcarea datelor. Va rugam incercati din nou.', 'error');

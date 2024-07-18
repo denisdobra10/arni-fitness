@@ -13,13 +13,10 @@ function AbonamentePage() {
 
 
     useEffect(() => {
-        console.log('fetching memberships')
         const fetchMemberships = async () => {
             try {
                 const response = await axios.get('/admin/memberships');
                 setMemberships(response.data);
-
-                console.log(response.data)
 
             } catch (err: any) {
                 const error = err as AxiosError;

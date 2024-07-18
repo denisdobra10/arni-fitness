@@ -27,8 +27,6 @@ export default function InventarTable() {
             try {
                 const response = await axios.get('/admin/items');
                 setItems(response.data);
-
-                console.log(response.data)
             } catch (err) {
                 displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
             }

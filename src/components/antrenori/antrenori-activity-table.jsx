@@ -33,7 +33,6 @@ export default function AntrenoriActivityTable(props) {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        console.log()
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 600);
         };

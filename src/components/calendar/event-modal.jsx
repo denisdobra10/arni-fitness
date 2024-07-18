@@ -9,10 +9,6 @@ Modal.setAppElement(document.body);
 export function EventModal({ selectedEvent, isOpen, onClose, setSessions}) {
     const { displayNotification } = useData();
 
-    useEffect(() => {
-        console.log(selectedEvent);
-    }, [selectedEvent]);
-
     const handleDeleteSession = async (sessionId) => {
         try {
             // Make a request to the backend to delete the session
@@ -22,7 +18,6 @@ export function EventModal({ selectedEvent, isOpen, onClose, setSessions}) {
             displayNotification('Sesiunea a fost stearsa cu succes', 'success');
         } catch (err) {
             displayNotification(err.response.data, 'error');
-            console.log(err);
         }
     }
 
