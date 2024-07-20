@@ -7,6 +7,27 @@ function ClientListWidget({ clients }) {
     const [currentPage, setCurrentPage] = useState(1);
     const clientsPerPage = 10;
 
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+
+        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+        const formattedDate = date.toLocaleDateString(undefined, dateOptions);
+        const formattedTime = date.toLocaleTimeString(undefined, timeOptions);
+
+        return `${formattedDate} at ${formattedTime}`;
+    }
+
+    function showLastPayment(paymentLink) {
+        if (!paymentLink) {
+            return;
+        }
+
+        window.open(paymentLink, '_blank');
+    }
+
+
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
     };
@@ -51,6 +72,7 @@ function ClientListWidget({ clients }) {
                             <TableCell>Nume</TableCell>
                             <TableCell>Email</TableCell>
                             <TableCell>Telefon</TableCell>
+                            <TableCell>Pin</TableCell>
                             <TableCell>Data Inregistrarii</TableCell>
                             <TableCell>Abonament Activ</TableCell>
                             <TableCell>Actiuni</TableCell>
@@ -58,14 +80,15 @@ function ClientListWidget({ clients }) {
                     </TableHead>
                     <TableBody>
                         {currentClients.map((client) => (
-                            <TableRow key={client.id}>
-                                <TableCell>{client.name}</TableCell>
-                                <TableCell>{client.email}</TableCell>
-                                <TableCell>{client.phone}</TableCell>
-                                <TableCell>{client.registrationDate}</TableCell>
-                                <TableCell>{client.activeSubscription ? 'Da' : 'Nu'}</TableCell>
+                            <TableRow key={client?.id}>
+                                <TableCell>{client?.name}</TableCell>
+                                <TableCell>{client?.email}</TableCell>
+                                <TableCell>{client?.phoneNumber}</TableCell>
+                                <TableCell>{client?.pin}</TableCell>
+                                <TableCell>{formatDate(client?.createdAt)}</TableCell>
+                                <TableCell>{client?.hasActiveSubscription ? 'Da' : 'Nu'}</TableCell>
                                 <TableCell>
-                                    <Button variant="contained">Vezi ultima factura</Button>
+                                    <Button variant="contained" disabled={!client?.lastPaymentLink} onClick={() => showLastPayment(client?.lastPaymentLink)}>Vezi ultima factura</Button>
                                 </TableCell>
                             </TableRow>
                         ))}

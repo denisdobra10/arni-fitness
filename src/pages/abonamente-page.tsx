@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import HeaderTitleWidget from '../components/statistics/header-title-widget'
-import CreateAbonamentWidget from '../components/abonamente/create-abonament-widget'
+import React, { useEffect, useState } from 'react';
+import HeaderTitleWidget from '../components/statistics/header-title-widget';
+import CreateAbonamentWidget from '../components/abonamente/create-abonament-widget';
 import AbonamenteActiveWidget from '../components/abonamente/abonamente-active-widget';
 import { AxiosError } from 'axios';
 import { useData } from '../lib/data-provider';
@@ -13,13 +13,10 @@ function AbonamentePage() {
 
 
     useEffect(() => {
-        console.log('fetching memberships')
         const fetchMemberships = async () => {
             try {
                 const response = await axios.get('/admin/memberships');
                 setMemberships(response.data);
-
-                console.log(response.data)
 
             } catch (err: any) {
                 const error = err as AxiosError;

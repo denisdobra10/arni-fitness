@@ -28,7 +28,6 @@ export const DataProvider = ({ children }) => {
                     setUser(response.data);
                     localStorage.setItem('user', JSON.stringify(response.data));
                 } catch (err) {
-                    console.log(err);
                 }
 
             }
@@ -59,8 +58,6 @@ export const DataProvider = ({ children }) => {
             }
         });
 
-        console.log(response.data);
-
         setUser(response.data);
         localStorage.setItem('user', JSON.stringify(response.data));
 
@@ -68,6 +65,7 @@ export const DataProvider = ({ children }) => {
     }
 
     const logout = () => {
+        localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         setLoggedIn(false);
     }

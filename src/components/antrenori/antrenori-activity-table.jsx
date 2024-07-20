@@ -28,7 +28,8 @@ const rows = [
     createData('Gingerbread', 356, 16.0, 49, 3.9),
 ];
 
-export default function AntrenoriActivityTable() {
+export default function AntrenoriActivityTable(props) {
+    const { classStatistics } = props;
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -61,10 +62,10 @@ export default function AntrenoriActivityTable() {
                     <TableRow
                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
-                        <TableCell component="th" scope="row">2500</TableCell>
-                        <TableCell align="center">25</TableCell>
-                        <TableCell align="center">132</TableCell>
-                        <TableCell align="center">8</TableCell>
+                        <TableCell component="th" scope="row">{classStatistics?.totalClients}</TableCell>
+                        <TableCell align="center">{classStatistics?.weeklyClients}</TableCell>
+                        <TableCell align="center">{classStatistics?.monthlyClients}</TableCell>
+                        <TableCell align="center">{classStatistics?.todayClients}</TableCell>
                     </TableRow>
 
                 </TableBody>

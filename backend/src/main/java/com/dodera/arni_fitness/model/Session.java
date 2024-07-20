@@ -20,6 +20,9 @@ public class Session {
     @Column
     private Integer availableSpots;
 
+    @Column
+    private String observations;
+
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
     @JsonBackReference

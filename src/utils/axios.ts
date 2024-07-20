@@ -24,15 +24,18 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
     (response) => {
-        if (response.status === 401) {
-            // logout
-            // redirectionez pe login
-            // sters din local storage
-        }
-        return response
+        // Do something with response data
+        return response;
     },
     (error) => {
-        // Do something with response error
+        if (error.response.status === 401) {
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('user')
+            // logout
+            // redirectionez pe login
+            document.location.href = '/login'
+            // sters din local storage
+    }
         return Promise.reject(error)
     }
 )

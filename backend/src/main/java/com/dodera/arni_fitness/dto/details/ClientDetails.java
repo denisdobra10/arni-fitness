@@ -12,6 +12,7 @@ import java.util.List;
         private String name;
         private String email;
         private String phoneNumber;
+        private Integer pin;
         private String createdAt;
         private boolean hasActiveSubscription;
         private String lastPaymentLink;

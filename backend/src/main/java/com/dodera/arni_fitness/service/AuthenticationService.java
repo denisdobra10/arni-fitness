@@ -63,7 +63,7 @@ public class AuthenticationService {
             user.setCreatedAt(LocalDateTime.now());
             user.setRole(role);
             user = userRepository.save(user);
-//            mailService.sendWelcomeMessage(user.getEmail(), user.getName());
+            mailService.sendWelcomeMessage(user.getEmail(), user.getName());
             return user;
         } catch (StripeException e) {
             throw new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR);
@@ -78,7 +78,6 @@ public class AuthenticationService {
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);
             }
-            mailService.sendWelcomeMessage(user.getEmail(), user.getName());
 
             return user;
         } catch (Exception e) {

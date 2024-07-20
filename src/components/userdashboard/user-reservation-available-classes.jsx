@@ -1,14 +1,22 @@
 import React from 'react'
 import ClassReservationItem from './class-reservation-item'
 
-const UserReservationAvailableClasses = () => {
+const UserReservationAvailableClasses = ({ selectedDate, sessions}) => {
     return (
         <div className="flex flex-col gap-4">
-            <span className='text-3xl font-semibold self-start'>Clase disponibile (15.05.2024)</span>
+            <span className='text-3xl font-semibold self-start'>Clase disponibile {selectedDate}</span>
 
-            <ClassReservationItem className={'TRX'} coach={'Marius Pop'} time={'17:30'} availableSpace={8} />
-            <ClassReservationItem className={'TRX'} coach={'Marius Pop'} time={'17:30'} availableSpace={8} />
-            <ClassReservationItem className={'TRX'} coach={'Marius Pop'} time={'17:30'} availableSpace={8} />
+            {sessions.length === 0 && <span className='text-2xl'>Nu sunt clase disponibile pentru aceasta zi</span>}
+            {sessions.map(session => (
+                <ClassReservationItem
+                    key={session.sessionId}
+                    sessionId={session.sessionId}
+                    className={session.sessionName}
+                    coach={session.coachName}
+                    time={session.date}
+                    availableSpace={session.availableSpots}
+                />
+            ))}
         </div>
     )
 }

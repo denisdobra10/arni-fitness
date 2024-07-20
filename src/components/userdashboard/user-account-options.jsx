@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 import UserActiveReservations from './user-active-reservations'
 import UserActivePayments from './user-active-payments';
+import {useData} from "../../lib/data-provider.jsx";
 
 const UserAccountOptions = () => {
-
     const [activeReservations, setActiveReservations] = useState(false);
     const [activePayments, setActivePayments] = useState(false);
 

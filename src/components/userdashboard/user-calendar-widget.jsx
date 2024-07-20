@@ -5,13 +5,12 @@ import roLocale from '@fullcalendar/core/locales/ro';
 import interactionPlugin from "@fullcalendar/interaction";
 
 
-function UserCalendarWidget() {
-    const [selectedDate, setSelectedDate] = useState(null);
+function UserCalendarWidget({ setSelectedDate, sessions }) {
 
-    function handleDateClick(arg) {
+    const handleDateClick = (arg) => {
         setSelectedDate(arg.dateStr);
-        alert('Data selectata: ' + arg.dateStr);
     }
+
 
     return (
         <>
@@ -22,6 +21,15 @@ function UserCalendarWidget() {
                 locale={roLocale}
                 weekends={false}
                 dateClick={handleDateClick}
+                events={sessions.map(session =>
+                {
+                    const title = session.sessionName + " " + session.date.split("T")[1];
+                    const date = session.date.split("T")[0];
+                    return {
+                        title: title,
+                        date: date,
+                    };
+                })}
             />
         </>
     );

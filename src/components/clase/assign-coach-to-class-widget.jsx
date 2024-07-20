@@ -5,7 +5,8 @@ import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 
 
-function AssignCoachToClassWidget() {
+function AssignCoachToClassWidget(props) {
+    const { classes, coaches, assignCoach } = props;
 
     const [gymClass, setGymClass] = React.useState('');
     const [coach, setCoach] = React.useState('');
@@ -17,6 +18,8 @@ function AssignCoachToClassWidget() {
     const handleCoachChange = (event) => {
         setCoach(event.target.value);
     };
+
+
 
     return (
         <div className="flex flex-col w-full">
@@ -33,9 +36,9 @@ function AssignCoachToClassWidget() {
                     value={gymClass}
                     onChange={handleClassChange}
                 >
-                    <MenuItem value={10}>Nume clasa 1</MenuItem>
-                    <MenuItem value={20}>Nume clasa 2</MenuItem>
-                    <MenuItem value={30}>Nume clasa 3</MenuItem>
+                    {classes?.map((cls) => (
+                        <MenuItem key={cls.className} value={cls.id}>{cls.className}</MenuItem>
+                    ))}
                 </Select>
 
                 <InputLabel htmlFor="select-coach-label" id="select-coach-label">Selecteaza antrenor</InputLabel>
@@ -45,12 +48,13 @@ function AssignCoachToClassWidget() {
                     value={coach}
                     onChange={handleCoachChange}
                 >
-                    <MenuItem value={10}>Nume antrenor 1</MenuItem>
-                    <MenuItem value={20}>Nume antrenor 2</MenuItem>
-                    <MenuItem value={30}>Nume antrenor 3</MenuItem>
+                    {coaches?.map((coach) => (
+                        <MenuItem key={coach.name} value={coach.id}>{coach.name}</MenuItem>
+                    ))}
                 </Select>
 
-                <Button className='w-full sm:w-1/2 self-center' variant="contained">Asociaza antrenor clasei</Button>
+                <Button className='w-full sm:w-1/2 self-center' variant="contained"
+                        onClick={() => assignCoach(gymClass, coach)}>Asociaza antrenor clasei</Button>
 
 
             </div>
