@@ -140,8 +140,12 @@ public class AdminService {
     public List<ClassDetails> assignCoachToClass(Long classId, Long coachId) {
         var classEntity = classRepository.findById(classId).orElseThrow(() -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
         var coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
+        List<ClassEntity> coachedClasses = coach.getCoachedClasses();
 
-        coach.getCoachedClasses().add(classEntity);
+        if (coachedClasses != null && coachedClasses.contains(classEntity)) {
+            throw new IllegalArgumentException("Acest antrenor este deja asignat la aceasta clasa.");
+        }
+
         coachRepository.save(coach);
 
         return getClassesDetails();

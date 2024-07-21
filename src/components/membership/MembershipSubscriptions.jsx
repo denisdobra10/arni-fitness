@@ -31,7 +31,7 @@ const MembershipSubscriptions = () => {
                     title={subscription.name}
                     price={subscription.price}
                     entries={subscription.entries}
-                    availability={subscription.availability}
+                    availability={subscription.duration}
                     description={subscription.description} />
             ))}
 
