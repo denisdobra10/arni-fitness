@@ -53,9 +53,6 @@ public class AuthenticationService {
             user.setName(signUpRequest.name());
             user.setEmail(signUpRequest.email());
             user.setPassword(passwordEncoder.encode(signUpRequest.password()));
-            if (signUpRequest.phoneNumber() != null && !signUpRequest.phoneNumber().isEmpty()) {
-                user.setPhoneNumber(signUpRequest.phoneNumber());
-            }
 
             Role role = roleRepository.findByName("USER").orElseThrow(() -> new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR));
             user.setPin(generateRandomPin());

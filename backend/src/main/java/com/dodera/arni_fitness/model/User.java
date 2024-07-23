@@ -40,9 +40,6 @@ public class User implements UserDetails {
     @Column(length = 4, unique = true)
     private Integer pin;
 
-    @Column
-    private String phoneNumber;
-
     @JsonIgnore
     @Column(unique = true)
     private String stripeCustomerId;
