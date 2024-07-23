@@ -2,7 +2,7 @@ import React, {useEffect} from 'react'
 import {useNavigate} from "react-router-dom";
 
 const UserDashboardMainDetails = ({ user }) => {
-    const hasSubscription = user?.user?.lastSubscription !== null;
+    const hasSubscription = user?.user?.subscriptionDetails !== null;
     const navigate = useNavigate();
 
     const handleBuySubscription = () => {

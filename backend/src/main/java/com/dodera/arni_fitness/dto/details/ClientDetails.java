@@ -11,7 +11,6 @@ import java.util.List;
         private Long id;
         private String name;
         private String email;
-        private String phoneNumber;
         private Integer pin;
         private String createdAt;
         private boolean hasActiveSubscription;

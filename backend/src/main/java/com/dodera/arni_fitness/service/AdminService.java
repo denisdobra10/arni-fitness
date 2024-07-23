@@ -45,6 +45,7 @@ public class AdminService {
             }
 
             var membership = new Membership();
+            membership.setValid(true);
             membership.setAvailability(membershipRequest.availability());
             membership.setDescription(membershipRequest.description());
             membership.setEntries(membershipRequest.entries());
@@ -66,6 +67,8 @@ public class AdminService {
             }
             Product product = Product.retrieve(membership.getStripeProductId());
             product.update(ProductUpdateParams.builder().setActive(false).build());
+            membership.setValid(false);
+            membershipRepository.save(membership);
         } catch (StripeException e) {
             throw new RuntimeException(ErrorType.MEMBERSHIP_DELETION_ERROR);
         }
@@ -140,8 +143,12 @@ public class AdminService {
     public List<ClassDetails> assignCoachToClass(Long classId, Long coachId) {
         var classEntity = classRepository.findById(classId).orElseThrow(() -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
         var coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
+        List<ClassEntity> coachedClasses = coach.getCoachedClasses();
 
-        coach.getCoachedClasses().add(classEntity);
+        if (coachedClasses != null && coachedClasses.contains(classEntity)) {
+            throw new IllegalArgumentException("Acest antrenor este deja asignat la aceasta clasa.");
+        }
+
         coachRepository.save(coach);
 
         return getClassesDetails();
@@ -345,7 +352,7 @@ public class AdminService {
     public List<MembershipDetails> getMembershipsDetails() {
         List<Membership> memberships = membershipRepository.findAll();
 
-        return memberships.stream().map(membership -> new MembershipDetails(
+        return memberships.stream().filter(Membership::getValid).map(membership -> new MembershipDetails(
                 membership.getId(),
                 membership.getTitle(),
                 membership.getDescription(),
@@ -406,7 +413,6 @@ public class AdminService {
                     user.getId(),
                     user.getName(),
                     user.getEmail(),
-                    user.getPhoneNumber(),
                     user.getPin(),
                     user.getCreatedAt().toString(),
                     isActive,

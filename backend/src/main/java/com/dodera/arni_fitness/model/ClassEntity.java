@@ -30,6 +30,7 @@ public class ClassEntity {
     private Integer availableSpots;
 
     @JsonIgnore
+    @JsonManagedReference
     @ManyToMany(mappedBy = "coachedClasses")
     private List<Coach> coaches;
 
@@ -37,4 +38,20 @@ public class ClassEntity {
     @JsonManagedReference
     @OneToMany(mappedBy = "sessionClassEntity")
     private List<Session> sessions;
+
+    @Override
+    public boolean equals(Object classEntity) {
+        if (this == classEntity) {
+            return true;
+        }
+        if (classEntity == null || getClass() != classEntity.getClass()) {
+            return false;
+        }
+        return this.id.equals(((ClassEntity) classEntity).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

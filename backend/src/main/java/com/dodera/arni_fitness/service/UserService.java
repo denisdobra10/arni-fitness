@@ -51,7 +51,7 @@ public class UserService {
     }
 
     private int getDaysLeft(Subscription subscription) {
-        LocalDateTime endOfSubscription = subscription.getStartDate().plusMonths(1);
+        LocalDateTime endOfSubscription = subscription.getStartDate().plusDays(subscription.getPeriod());
         return (int) ChronoUnit.DAYS.between(LocalDateTime.now(), endOfSubscription);
     }
 
@@ -226,6 +226,7 @@ public class UserService {
 
     public List<MembershipDetails> getMemberships() {
         return membershipRepository.findAll().stream()
+                .filter(Membership::getValid)
                 .map(membership -> new MembershipDetails(
                         membership.getId(),
                         membership.getTitle(),
