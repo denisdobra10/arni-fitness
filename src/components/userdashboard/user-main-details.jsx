@@ -2,16 +2,12 @@ import React, {useEffect} from 'react'
 import {useNavigate} from "react-router-dom";
 
 const UserDashboardMainDetails = ({ user }) => {
-    const hasSubscription = user?.user?.subscriptionDetails !== null;
+    const hasSubscription = !!user?.subscriptionDetails;
     const navigate = useNavigate();
 
     const handleBuySubscription = () => {
         navigate('/membership');
     }
-
-    useEffect(() => {
-
-    }, []);
 
     return (
         hasSubscription ? (
