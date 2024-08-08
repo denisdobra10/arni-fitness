@@ -34,6 +34,7 @@ function AssignCoachToClassWidget(props) {
                     labelId="select-class-label"
                     id="select-class"
                     value={gymClass}
+                    placeholder="Selecteaza clasa"
                     onChange={handleClassChange}
                 >
                     {classes?.map((cls) => (
@@ -45,6 +46,7 @@ function AssignCoachToClassWidget(props) {
                 <Select
                     labelId="select-coach-label"
                     id="select-coach"
+                    placeholder="Selecteaza antrenor"
                     value={coach}
                     onChange={handleCoachChange}
                 >

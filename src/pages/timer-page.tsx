@@ -17,9 +17,9 @@ const TimerPage = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="text-center">
-                <h1 className="text-4xl font-bold">Iti multumim pentru achizitie.</h1>
-                <h1 className="text-4xl font-bold">Vei fi redirectionat in {count}...</h1>
+            <div className="text-center text-4xl font-bold text-gray-700">
+                <h1>Iti multumim pentru achizitie.</h1>
+                <h1>Vei fi redirectionat in {count}...</h1>
             </div>
         </div>
     );

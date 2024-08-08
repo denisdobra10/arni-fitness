@@ -149,6 +149,8 @@ public class AdminService {
             throw new IllegalArgumentException("Acest antrenor este deja asignat la aceasta clasa.");
         }
 
+        coachedClasses.add(classEntity);
+        coach.setCoachedClasses(coachedClasses);
         coachRepository.save(coach);
 
         return getClassesDetails();
@@ -319,7 +321,7 @@ public class AdminService {
 
     public StatisticsDetails getStatistics() {
         List<Purchase> purchases = purchaseRepository.findAll();
-        List<Membership> memberships = membershipRepository.findAll();
+        List<Membership> memberships = membershipRepository.findAll().stream().filter(Membership::getValid).toList();
         List<ClassEntity> classEntities = classRepository.findAll();
         List<Session> sessions = sessionRepository.findAll();
         List<Coach> coaches = coachRepository.findAll();

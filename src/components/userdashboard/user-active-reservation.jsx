@@ -2,6 +2,8 @@ import React from 'react'
 import {useNavigate} from "react-router-dom";
 import {useData} from "../../lib/data-provider.jsx";
 import axios from "../../utils/axios";
+import {formatDate} from "@fullcalendar/core";
+import {formatRomanianDate} from "./class-reservation-item.jsx";
 
 const UserActiveReservation = ({ reservationId, dateTime, className, coach }) => {
     const navigate = useNavigate();
@@ -20,7 +22,7 @@ const UserActiveReservation = ({ reservationId, dateTime, className, coach }) =>
 
     return (
         <div className='grid grid-cols-2 gap-2 border-2 p-2 border-primary'>
-            <span>{dateTime}</span>
+            <span>{formatRomanianDate(dateTime)}</span>
             <span>{className}</span>
             <span>{coach}</span>
             <span className='font-bold text-lg'>REZERVAT</span>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import UserActiveReservations from './user-active-reservations'
 import UserActivePayments from './user-active-payments';
 import {useData} from "../../lib/data-provider.jsx";
@@ -6,6 +6,14 @@ import {useData} from "../../lib/data-provider.jsx";
 const UserAccountOptions = () => {
     const [activeReservations, setActiveReservations] = useState(false);
     const [activePayments, setActivePayments] = useState(false);
+    const { user } = useData();
+
+    useEffect(() => {
+        if (user?.activeReservations.length >= 1) {
+            setActiveReservations(true);
+        }
+    }, [user]);
+
 
     return (
         <div className="flex flex-col py-8 px-4 gap-4 lg:gap-16 w-full rounded-lg bg-white text-center text-primary shadow-spreaded shadow-primary">

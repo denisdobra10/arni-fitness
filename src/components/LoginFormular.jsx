@@ -18,7 +18,9 @@ const LoginFormular = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        submitButton.current.disabled = true;
+        if (submitButton) {
+            submitButton.current.disabled = true;
+        }
 
         try {
             displayLoadingScreen('Se conecteaza...');
@@ -37,11 +39,10 @@ const LoginFormular = () => {
             }
         } catch (err) {
             displayNotification(err.response.data || 'A aparut o eroare neasteptata. Incearca mai tarziu', 'error');
+        } finally {
+            hideLoadingScreen();
+            submitButton.current.disabled = false;
         }
-
-        hideLoadingScreen();
-        submitButton.current.disabled = false;
-
     }
 
     return (
@@ -59,7 +60,7 @@ const LoginFormular = () => {
                     className='border border-primary rounded-md p-3 text-primary placeholder-red-300 text-sm font-light focus:outline-primary'
                 />
 
-                <input type="submit" value="Login" className='text-lg font-bold bg-primary py-3 w-2/3 text-white self-center rounded my-2 hover:cursor-pointer hover:bg-red-800' />
+                <input ref={submitButton} type="submit" value="Login" className='text-lg font-bold bg-primary py-3 w-2/3 text-white self-center rounded my-2 hover:cursor-pointer hover:bg-red-800' />
             </form>
 
             <div className="flex flex-row gap-4 self-end items-center">
@@ -69,10 +70,10 @@ const LoginFormular = () => {
 
             <div className="w-full h-[0.5px] bg-slate-600"></div>
 
-            <button ref={submitButton} className='flex flex-row justify-center w-2/3 self-center gap-4 py-2 items-center text-center border border-slate-500 rounded'>
-                <img src={GoogleSvgIcon} className='w-6 h-6' />
-                <span className='text-base font-medium text-black'>Conectare cu Google</span>
-            </button>
+            {/*<button ref={submitButton} className='flex flex-row justify-center w-2/3 self-center gap-4 py-2 items-center text-center border border-slate-500 rounded'>*/}
+            {/*    <img src={GoogleSvgIcon} className='w-6 h-6' />*/}
+            {/*    <span className='text-base font-medium text-black'>Conectare cu Google</span>*/}
+            {/*</button>*/}
         </div>
     )
 }
