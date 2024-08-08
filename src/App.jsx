@@ -18,6 +18,7 @@ import ClientiPage from './pages/clienti-page';
 import InventarPage from './pages/inventar-page';
 import AdminLayout from './pages/admin-layout';
 import ConfirmModal from './components/ConfirmModal';
+import TimerPage from "./pages/timer-page.tsx";
 
 function App() {
   const { isLoading, loadingMessage, isAuthenticated } = useData();
@@ -50,6 +51,7 @@ function App() {
           </Route>
           <Route path="/user" element={<UserScreen />} />
           <Route path="/membership" element={<MembershipScreen />} />
+            <Route path="/payment-redirect" element={<TimerPage />} />
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/signup" element={<SignupScreen />} />
           {/* Add a default route */}

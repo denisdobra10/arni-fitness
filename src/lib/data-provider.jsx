@@ -24,10 +24,13 @@ export const DataProvider = ({ children }) => {
             if (token) {
                 try {
                     const response = await axios.get('/user/details');
-
+                    console.log(response.data);
                     setUser(response.data);
                     localStorage.setItem('user', JSON.stringify(response.data));
                 } catch (err) {
+                    if (err.response.status === 401) {
+                        logout();
+                    }
                 }
 
             }
