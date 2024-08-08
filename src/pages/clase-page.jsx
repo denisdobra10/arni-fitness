@@ -30,7 +30,7 @@ function ClasePage() {
             await axios.post(`/admin/classes/assign`, { classId, coachId });
             window.location.reload();
 
-            displayNotification('Clasa a fost stearsa cu succes', 'success')
+            displayNotification('Antrenorul a fost setat cu success!', 'success')
         } catch (err) {
             displayNotification(err.response?.data || 'A aparut o eroare neasteptata', 'error')
         }

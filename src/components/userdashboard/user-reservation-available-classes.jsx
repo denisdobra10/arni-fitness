@@ -1,10 +1,10 @@
 import React from 'react'
-import ClassReservationItem from './class-reservation-item'
+import ClassReservationItem, {formatRomanianDate} from './class-reservation-item'
 
 const UserReservationAvailableClasses = ({ selectedDate, sessions}) => {
     return (
         <div className="flex flex-col gap-4">
-            <span className='text-3xl font-semibold self-start'>Clase disponibile {selectedDate}</span>
+            <span className='text-3xl font-semibold self-start'>Clase disponibile {formatRomanianDate(selectedDate, false)}</span>
 
             {sessions.length === 0 && <span className='text-2xl'>Nu sunt clase disponibile pentru aceasta zi</span>}
             {sessions.map(session => (

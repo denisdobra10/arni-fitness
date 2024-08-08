@@ -3,6 +3,30 @@ import axios from "../../utils/axios";
 import {useData} from "../../lib/data-provider.jsx";
 import {useNavigate} from "react-router-dom";
 
+export function formatRomanianDate(dateString, includeTime = true) {
+    var date = new Date(dateString);
+
+    // Format the date to Romanian format
+    var formattedDate = date.toLocaleDateString('ro-RO', {
+        weekday: 'long', // full day name
+        year: 'numeric',
+        month: 'long', // full month name
+        day: 'numeric'
+    });
+
+    if (includeTime) {
+        // Format the time to Romanian format
+        var formattedTime = date.toLocaleTimeString('ro-RO', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        return `${formattedDate}, ${formattedTime}`;
+    } else {
+        return formattedDate;
+    }
+}
+
 const ClassReservationItem = ({ sessionId, className, coach, time, availableSpace }) => {
     const { displayNotification } = useData();
     const navigate = useNavigate();
@@ -23,7 +47,7 @@ const ClassReservationItem = ({ sessionId, className, coach, time, availableSpac
             <div className="flex flex-col sm:flex-row gap-4 text-2xl font-bold">
                 <span>{className}</span>
                 <span>{coach}</span>
-                <span>{time}</span>
+                <span>{formatRomanianDate(time)}</span>
                 <span>{availableSpace} locuri ramase</span>
             </div>
 

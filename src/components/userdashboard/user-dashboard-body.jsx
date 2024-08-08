@@ -27,7 +27,7 @@ const UserDashboardBody = () => {
             </div>
 
             <UserDashboardMainDetails user={user}/>
-            <UserReservation />
+            {!!user?.subscriptionDetails && <UserReservation />}
             <UserAccountOptions />
 
             <button onClick={handleLogout} className='w-full md:w-1/2 xl:w-1/3 bg-primary text-white text-lg font-semibold px-4 py-2'>Iesi din cont</button>

@@ -5,7 +5,7 @@ function AntrenorActivityCard(props) {
     const { coach } = props;
 
     return (
-        <div className="flex flex-col rounded-sm p-3 shadow-sm shadow-black text-primary w-full">
+        <div className="flex flex-col rounded-sm p-5 shadow-lg shadow-black text-primary w-full border-2 border-red-500">
 
             <div className="flex flex-col text-center">
                 <h2 className='text-lg font-bold'>{coach?.name}</h2>
