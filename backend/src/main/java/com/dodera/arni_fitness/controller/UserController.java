@@ -1,6 +1,7 @@
 package com.dodera.arni_fitness.controller;
 
 import com.dodera.arni_fitness.dto.AvailableSession;
+import com.dodera.arni_fitness.dto.details.ActiveReservation;
 import com.dodera.arni_fitness.dto.details.MembershipDetails;
 import com.dodera.arni_fitness.dto.response.PurchaseResponse;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
@@ -30,10 +31,9 @@ public class UserController {
     }
 
     @PostMapping("/reserveSession/{sessionId}")
-    public UserDetailsResponse reserveSession(@PathVariable Long sessionId) {
+    public ActiveReservation reserveSession(@PathVariable Long sessionId) {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        userService.reserveSession(email, sessionId);
-        return userService.getUserDetails(email);
+        return userService.reserveSession(email, sessionId);
     }
 
     @DeleteMapping("/cancelReservation/{reservationId}")

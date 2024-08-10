@@ -135,7 +135,7 @@ public class UserService {
         );
     }
 
-    public void reserveSession(String email, Long sessionId) {
+    public ActiveReservation reserveSession(String email, Long sessionId) {
         User user = userRepository.findByEmail(email).orElseThrow(()
                 -> new IllegalArgumentException(ErrorType.UNEXPECTED_ERROR));
 
@@ -172,10 +172,16 @@ public class UserService {
         reservation.setSession(session);
         reservation.setCreated(LocalDateTime.now());
 
-        reservationRepository.save(reservation);
+        reservation = reservationRepository.save(reservation);
 
         session.setAvailableSpots(session.getAvailableSpots() - 1);
         sessionRepository.save(session);
+
+        return new ActiveReservation(
+                reservation.getId(),
+                session.getDatetime(),
+                session.getCoach().getName(),
+                session.getName());
     }
 
     public void cancelReservation(String email, Long reservationId) {
