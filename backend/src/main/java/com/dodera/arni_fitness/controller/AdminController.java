@@ -1,10 +1,7 @@
 package com.dodera.arni_fitness.controller;
 
 import com.dodera.arni_fitness.dto.details.*;
-import com.dodera.arni_fitness.dto.request.ClassRequest;
-import com.dodera.arni_fitness.dto.request.MembershipRequest;
-import com.dodera.arni_fitness.dto.request.PinRequest;
-import com.dodera.arni_fitness.dto.request.SessionRequest;
+import com.dodera.arni_fitness.dto.request.*;
 import com.dodera.arni_fitness.dto.response.ClassPageResponse;
 import com.dodera.arni_fitness.dto.response.Response;
 import com.dodera.arni_fitness.model.*;
@@ -76,6 +73,11 @@ public class AdminController {
     @PostMapping("/memberships")
     public Membership createMemberShip(@RequestBody  MembershipRequest membershipRequest) {
         return adminService.createMembership(membershipRequest);
+    }
+
+    @PostMapping("/setMembership")
+    public Subscription setMembershipForUser(@RequestBody SetMembershipRequest setMembershipRequest) {
+        return adminService.setMembershipForClient(setMembershipRequest.clientId(), setMembershipRequest.membershipId());
     }
 
     @DeleteMapping("/memberships/{id}")

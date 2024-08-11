@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { useSignupValidator } from '../lib/form-validator';
 import { useData } from '../lib/data-provider';
 import axios from '../utils/axios'
@@ -10,6 +10,13 @@ const SignupFormular = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
     const submitButton = useRef(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            navigate("/user");
+        }
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
