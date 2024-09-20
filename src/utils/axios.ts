@@ -31,10 +31,7 @@ instance.interceptors.response.use(
         if (error.response.status === 401) {
             localStorage.removeItem('accessToken')
             localStorage.removeItem('user')
-            // logout
-            // redirectionez pe login
             document.location.href = '/login'
-            // sters din local storage
     }
         return Promise.reject(error)
     }

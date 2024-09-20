@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from 'react-toastify';
 import axios from '../utils/axios';
+import {useNavigate} from "react-router-dom";
 
 const DataContext = createContext();
 
@@ -71,6 +72,7 @@ export const DataProvider = ({ children }) => {
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
         setLoggedIn(false);
+        window.location.href = '/login';
     }
 
     const setAccessToken = (token) => {

@@ -40,6 +40,9 @@ public class Purchase {
     @Column(name = "stripe_checkout_session_id")
     private String stripeCheckoutSessionId;
 
+    @Column(name = "payment_type")
+    private String paymentType = "CARD";
+
     @Column(name = "status", nullable = false)
     private String status;
 }

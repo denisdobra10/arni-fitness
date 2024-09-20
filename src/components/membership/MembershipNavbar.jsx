@@ -1,9 +1,14 @@
 import React, { useState } from 'react'
 import Logo from '../../assets/logo-dreptunghi.jpeg'
+import {useData} from "../../lib/data-provider.jsx";
 
 const MembershipNavbar = () => {
-
+    const { logout } = useData();
     const [showDropdown, setShowDropdown] = useState(false);
+
+    const handleLogout = () => {
+        logout();
+    }
 
     return (
         <div className='flex flex-row justify-between items-center px-8 md:px-32'>
@@ -16,7 +21,7 @@ const MembershipNavbar = () => {
                 </svg>
 
                 {showDropdown && <div className="absolute right-2 z-10 md:right-8 top-8 bg-slate-700 min-w-40 md:min-w-64 p-4">
-                    <button className='w-full text-start font-semibold tracking-wider text-white'>Logout</button>
+                    <button className='w-full text-start font-semibold tracking-wider text-white' onClick={() => handleLogout()}>Logout</button>
                 </div>}
             </div>
 

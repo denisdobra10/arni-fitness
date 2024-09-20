@@ -10,7 +10,13 @@ import com.dodera.arni_fitness.model.ClassEntity;
 import com.dodera.arni_fitness.repository.*;
 import com.dodera.arni_fitness.utils.ErrorType;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.Invoice;
+import com.stripe.model.InvoiceItem;
 import com.stripe.model.Product;
+import com.stripe.param.InvoiceCreateParams;
+import com.stripe.param.InvoiceItemCreateParams;
+import com.stripe.param.InvoicePayParams;
 import com.stripe.param.ProductUpdateParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -396,6 +402,66 @@ public class AdminService {
                     session.getDatetime(),
                     reservations.stream().map(Reservation::getUser).map(User::getName).toList());
         }).toList();
+    }
+
+    public Subscription setMembershipForClient(Long userId, Long membershipId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la asignarea abonamentului."));
+        Membership membership = membershipRepository.findById(membershipId).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la asignarea abonamentului."));
+
+        Subscription userLastSubscription = user.getLastSubscription();
+
+        if (userLastSubscription != null && userLastSubscription.getStartDate().plusDays(userLastSubscription.getPeriod()).isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Utilizatorul are deja un abonament activ.");
+        }
+
+        try {
+//            Customer customer = Customer.retrieve(user.getStripeCustomerId());
+            Product product = Product.retrieve(membership.getStripeProductId());
+
+            InvoiceCreateParams invoiceParams = InvoiceCreateParams.builder()
+                    .setCustomer(user.getStripeCustomerId()) // Replace with the actual customer ID
+                    .build();
+
+            Invoice invoice = Invoice.create(invoiceParams);
+
+            InvoiceItemCreateParams invoiceItemParams = InvoiceItemCreateParams.builder()
+                    .setCustomer(user.getStripeCustomerId())
+                    .setAmount((long) membership.getPrice() * 100)// Replace with the actual customer ID
+//                    .setPrice(product.getDefaultPrice())
+                    .setCurrency("ron")
+                    .setInvoice(invoice.getId())
+                    .setDescription(membership.getTitle() + " - CASH PAYMENT")
+                    .build();
+
+            InvoiceItem.create(invoiceItemParams);
+
+            InvoicePayParams payParams = InvoicePayParams.builder()
+                    .setPaidOutOfBand(true)
+                    .build();
+
+            invoice = invoice.pay(payParams);
+
+            Purchase purchase = new Purchase();
+            purchase.setDatetime(LocalDateTime.now());
+            purchase.setMembership(membership);
+            purchase.setUser(user);
+            purchase.setStatus("PAID");
+            purchase.setPaymentLink(invoice.getHostedInvoiceUrl());
+            purchase.setPaymentType("CASH");
+
+            Subscription subscription = new Subscription();
+            subscription.setStartDate(LocalDateTime.now());
+            subscription.setPeriod(membership.getAvailability());
+            subscription.setEntriesLeft(membership.getEntries());
+            subscription.setPurchase(purchase);
+//            subscriptionRepository.save(subscription);
+
+            user.setLastSubscription(subscription);
+            userRepository.save(user);
+        return subscription;
+        } catch (StripeException e) {
+            throw new RuntimeException("A aparut o eroare la asignarea abonamentului.");
+        }
     }
 
     public List<ClientDetails> getClientsDetails() {

@@ -3,6 +3,7 @@ import Logo from '../assets/logo-dreptunghi.jpeg'
 import LoginFormular from '../components/LoginFormular'
 
 const LoginScreen = () => {
+
     return (
         <div className="relative flex flex-row w-full h-screen">
             <div className="hidden lg:flex flex-col justify-center items-end w-1/3 h-full bg-primary pointer-events-none select-none">

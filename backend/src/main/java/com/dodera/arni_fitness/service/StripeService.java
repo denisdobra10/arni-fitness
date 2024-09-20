@@ -20,6 +20,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.ProductCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,13 +35,18 @@ public class StripeService {
     private final SubscriptionRepository subscriptionRepository;
     private final MailService mailService;
 
-    public StripeService(UserRepository userRepository, MembershipRepository membershipRepository, PurchaseRepository purchaseRepository, SubscriptionRepository subscriptionRepository, MailService mailService) {
+    public StripeService(UserRepository userRepository,
+                         MembershipRepository membershipRepository,
+                         PurchaseRepository purchaseRepository,
+                         SubscriptionRepository subscriptionRepository,
+                         MailService mailService,
+                         @Value("${stripe.api.token}") String stripeApiKey) {
         this.userRepository = userRepository;
         this.membershipRepository = membershipRepository;
         this.purchaseRepository = purchaseRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.mailService = mailService;
-        Stripe.apiKey = "sk_test_51PYYqtRoyfxq4ZhIzdbgKVjzRR4kurLUJryrHV5CCOfkUwQbrJvpGW5BTrQJTBMkqMUo3GS8DXFpZD8Nh3cOPDag00OpYD9wUm";
+        Stripe.apiKey = stripeApiKey;
     }
 
     public String handleProductCreation(MembershipRequest membershipRequest) throws StripeException {

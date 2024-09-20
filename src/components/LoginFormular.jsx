@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import GoogleSvgIcon from '../assets/google-icon.svg'
 import { useData } from '../lib/data-provider';
@@ -44,6 +44,13 @@ const LoginFormular = () => {
             submitButton.current.disabled = false;
         }
     }
+
+    useEffect(() => {
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            navigate("/user");
+        }
+    }, []);
 
     return (
         <div className="flex flex-col gap-4 w-full text-black">

@@ -30,38 +30,38 @@ function App() {
   const { confirmModalOptions } = useData();
 
   return (
-    <Router>
-      <div id='root'>
-        {confirmModalOptions.show && <ConfirmModal />}
+      <Router>
+        <div id='root'>
+          {confirmModalOptions.show && <ConfirmModal />}
 
-        {isLoading && <LoadingScreen message={loadingMessage} />}
-        <Routes>
-          <Route path="/admin" element={
-            <RequireAuth>
-              <AdminLayout />
-            </RequireAuth>
-          }>
-            <Route index element={<StatisticsPage />} />
-            <Route path="abonamente" element={<AbonamentePage />} />
-            <Route path="clase" element={<ClasePage />} />
-            <Route path="antrenori" element={<AntrenoriPage />} />
-            <Route path="calendar" element={<CalendarPage />} />
-            <Route path="clienti" element={<ClientiPage />} />
-            <Route path="inventar" element={<InventarPage />} />
-          </Route>
-          <Route path="/user" element={<UserScreen />} />
-          <Route path="/membership" element={<MembershipScreen />} />
-            <Route path="/payment-redirect" element={<TimerPage />} />
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="/signup" element={<SignupScreen />} />
-          {/* Add a default route */}
-          <Route path="/" element={<LoginScreen />} />
-          <Route path="*" element={<ErrorPage />} />
-        </Routes>
+          {isLoading && <LoadingScreen message={loadingMessage} />}
+          <Routes>
+            <Route path="/admin" element={
+              <RequireAuth>
+                <AdminLayout />
+              </RequireAuth>
+            }>
+              <Route index element={<RequireAuth><StatisticsPage /></RequireAuth>} />
+              <Route path="abonamente" element={<RequireAuth><AbonamentePage /></RequireAuth>} />
+              <Route path="clase" element={<RequireAuth><ClasePage /></RequireAuth>} />
+              <Route path="antrenori" element={<RequireAuth><AntrenoriPage /></RequireAuth>} />
+              <Route path="calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
+              <Route path="clienti" element={<RequireAuth><ClientiPage /></RequireAuth>} />
+              <Route path="inventar" element={<RequireAuth><InventarPage /></RequireAuth>} />
+            </Route>
+            <Route path="/user" element={<RequireAuth><UserScreen /></RequireAuth>} />
+            <Route path="/membership" element={<RequireAuth><MembershipScreen /></RequireAuth>} />
+            <Route path="/payment-redirect" element={<RequireAuth><TimerPage /></RequireAuth>} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/signup" element={<SignupScreen />} />
+            {/* Add a default route */}
+            <Route path="/" element={<LoginScreen />} />
+            <Route path="*" element={<ErrorPage />} />
+          </Routes>
 
-        <ToastContainer />
-      </div>
-    </Router>
+          <ToastContainer />
+        </div>
+      </Router>
   );
 }
 
