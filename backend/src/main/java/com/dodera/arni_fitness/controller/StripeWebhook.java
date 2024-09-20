@@ -10,6 +10,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.net.ApiResource;
 import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/stripe")
 @RequiredArgsConstructor
 public class StripeWebhook {
-    private static final String STRIPE_WEBHOOK_SECRET = "whsec_775ab7553db7e94ec91cfd87ad1713058aabf1423732e4dc049cfe708dff12d4";
+    @Value("${stripe.webhook.token}")
+    private String stripeWebhookSecret;
     private final StripeService stripeService;
 
     @PostMapping("/webhook")
@@ -47,7 +49,7 @@ public class StripeWebhook {
 
     private boolean isSignatureValid(String payload, String signature) {
         try {
-            Webhook.Signature.verifyHeader(payload, signature, STRIPE_WEBHOOK_SECRET, 0);
+            Webhook.Signature.verifyHeader(payload, signature, stripeWebhookSecret, 0);
             return true;
         } catch (SignatureVerificationException e) {
             return false;
