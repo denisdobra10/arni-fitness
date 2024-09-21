@@ -34,6 +34,8 @@ public class StripeService {
     private final PurchaseRepository purchaseRepository;
     private final SubscriptionRepository subscriptionRepository;
     private final MailService mailService;
+    @Value("${stripe.session.return.url}")
+    private String stripeReturnUrl;
 
     public StripeService(UserRepository userRepository,
                          MembershipRepository membershipRepository,
@@ -83,7 +85,7 @@ public class StripeService {
 
         SessionCreateParams params =
                 SessionCreateParams.builder()
-                        .setSuccessUrl("http://localhost:5173/payment-redirect")
+                        .setSuccessUrl(stripeReturnUrl)
                         .addLineItem(
                                 SessionCreateParams.LineItem.builder()
                                         .setPrice(product.getDefaultPrice())
