@@ -58,6 +58,12 @@ public class AdminController {
         return adminService.getClientsDetails();
     }
 
+    @PostMapping("/clients/{clientId}")
+    public String deleteClient(@PathVariable Long clientId) {
+        adminService.deleteUser(clientId);
+        return "Clientul a fost sters cu succes.";
+    }
+
     @GetMapping("/inventory")
     public List<Item> getInventory() {
         return adminService.getItems();
@@ -77,7 +83,11 @@ public class AdminController {
 
     @PostMapping("/setMembership")
     public Subscription setMembershipForUser(@RequestBody SetMembershipRequest setMembershipRequest) {
-        return adminService.setMembershipForClient(setMembershipRequest.clientId(), setMembershipRequest.membershipId());
+        return adminService.setMembershipForClient(
+                setMembershipRequest.clientId(),
+                setMembershipRequest.membershipId(),
+                setMembershipRequest.activationDate()
+        );
     }
 
     @DeleteMapping("/memberships/{id}")

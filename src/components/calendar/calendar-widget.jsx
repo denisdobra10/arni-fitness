@@ -63,7 +63,7 @@ function CalendarWidget() {
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 locale={roLocale}
-                weekends={false}
+                weekends={true}
                 events={sessions.map(session =>
                 {
                     const title = session.name + " " + session.datetime.split("T")[1];

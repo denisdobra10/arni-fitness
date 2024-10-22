@@ -37,12 +37,15 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(length = 4, unique = true)
+    @Column(length = 4, unique = true, nullable = true)
     private Integer pin;
 
     @JsonIgnore
     @Column(unique = true)
     private String stripeCustomerId;
+
+    @Column
+    private Boolean active = true;
 
     @Column
     private LocalDateTime createdAt;

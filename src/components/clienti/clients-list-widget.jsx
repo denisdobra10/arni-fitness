@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import axios from '../../utils/axios';
+import { useData } from '../../lib/data-provider';
 
 function ClientListWidget({ clients }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const clientsPerPage = 10;
+    const { displayNotification } = useData();
 
     function formatDate(dateString) {
         const date = new Date(dateString);
@@ -18,6 +21,21 @@ function ClientListWidget({ clients }) {
 
         return `${formattedDate} at ${formattedTime}`;
     }
+
+    const handleDeleteClient = async (clientId) => {
+        // Implement delete client functionality
+
+        try {
+            const response = await axios.post(`/admin/clients/${clientId}`);
+            displayNotification(response.data, 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+
+        } catch (err) {
+            displayNotification(err.response.data, 'error');
+        }
+    };
 
     function showLastPayment(paymentLink) {
         if (!paymentLink) {
@@ -87,8 +105,14 @@ function ClientListWidget({ clients }) {
                                 <TableCell>{client?.pin}</TableCell>
                                 <TableCell>{formatDate(client?.createdAt)}</TableCell>
                                 <TableCell>{client?.hasActiveSubscription ? 'Da' : 'Nu'}</TableCell>
-                                <TableCell>
-                                    <Button variant="contained" disabled={!client?.lastPaymentLink} onClick={() => showLastPayment(client?.lastPaymentLink)}>Vezi ultima factura</Button>
+                                <TableCell className="max-w-[200px]">
+                                    <Button 
+                                        variant="contained" disabled={!client?.lastPaymentLink} onClick={() => showLastPayment(client?.lastPaymentLink)}>Vezi ultima factura</Button>
+                                    <Button 
+                                        className="!mt-1.5"  variant="contained" color="error" onClick={() => handleDeleteClient(client?.id)}
+                                    >
+                                            Sterge
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         ))}

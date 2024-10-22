@@ -69,8 +69,16 @@ public class AuthenticationService {
 
     public User loginUser(String email, String password) {
         try {
+            if (email.isEmpty() || password.isEmpty()) {
+                throw new IllegalArgumentException(ErrorType.ALL_FIELDS_ERROR);
+            }
+
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS));
+
+            if (!user.getActive()) {
+                throw new RuntimeException(ErrorType.CLOSED_ACCOUNT);
+            }
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);
@@ -78,7 +86,7 @@ public class AuthenticationService {
 
             return user;
         } catch (Exception e) {
-            throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

@@ -404,7 +404,7 @@ public class AdminService {
         }).toList();
     }
 
-    public Subscription setMembershipForClient(Long userId, Long membershipId) {
+    public Subscription setMembershipForClient(Long userId, Long membershipId, String activationDate) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la asignarea abonamentului."));
         Membership membership = membershipRepository.findById(membershipId).orElseThrow(() -> new IllegalArgumentException("A aparut o eroare la asignarea abonamentului."));
 
@@ -413,6 +413,8 @@ public class AdminService {
         if (userLastSubscription != null && userLastSubscription.getStartDate().plusDays(userLastSubscription.getPeriod()).isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Utilizatorul are deja un abonament activ.");
         }
+
+        LocalDateTime activationDateTime = LocalDateTime.parse(activationDate);
 
         try {
 //            Customer customer = Customer.retrieve(user.getStripeCustomerId());
@@ -450,7 +452,7 @@ public class AdminService {
             purchase.setPaymentType("CASH");
 
             Subscription subscription = new Subscription();
-            subscription.setStartDate(LocalDateTime.now());
+            subscription.setStartDate(activationDateTime);
             subscription.setPeriod(membership.getAvailability());
             subscription.setEntriesLeft(membership.getEntries());
             subscription.setPurchase(purchase);
@@ -467,7 +469,9 @@ public class AdminService {
     public List<ClientDetails> getClientsDetails() {
         List<User> users = userRepository.findAll();
 
-        return users.stream().filter(user -> user.getRole().getName().equals("USER"))
+        return users.stream()
+                .filter(User::getActive)
+                .filter(user -> user.getRole().getName().equals("USER"))
                 .map(user -> {
             String paymentLink = "";
             boolean isActive = false;
@@ -487,6 +491,27 @@ public class AdminService {
                     paymentLink
             );
         }).toList();
+    }
+
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Nu exista nici un utilizator cu acest id."));
+
+        if (!user.getActive()) {
+            return;
+        }
+
+        LocalDateTime today = LocalDateTime.now();
+        Subscription userSubscription = user.getLastSubscription();
+
+        if (userSubscription != null) {
+            if (today.isBefore(userSubscription.getStartDate().plusDays(userSubscription.getPeriod()))) {
+                throw new RuntimeException(ErrorType.USER_ACTIVE_SUBSCRIPTION);
+            }
+        }
+
+        user.setActive(false);
+        user.setPin(null);
+        userRepository.save(user);
     }
 
     public void checkinUser(String pin) {

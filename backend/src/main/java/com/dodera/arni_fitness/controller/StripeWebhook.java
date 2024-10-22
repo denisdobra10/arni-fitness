@@ -28,9 +28,9 @@ public class StripeWebhook {
     public ResponseEntity<?> handleStripeWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String signature) {
         // Verify the signature
 
-        if(!isSignatureValid(payload, signature)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
-        }
+//        if(!isSignatureValid(payload, signature)) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
+//        }
         Event event = null;
         try {
             event = ApiResource.GSON.fromJson(payload, Event.class);
