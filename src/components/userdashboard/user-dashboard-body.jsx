@@ -4,16 +4,29 @@ import UserReservation from './user-reservation'
 import UserAccountOptions from './user-account-options'
 import { useData } from '../../lib/data-provider'
 import { useNavigate } from 'react-router-dom'
+import axios from '../../utils/axios';
 
 const UserDashboardBody = () => {
 
-    const { logout, user } = useData();
+    const { logout, user,displayNotification } = useData();
+
     const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
 
         navigate('/login');
+    }
+
+    const handleResetPassword = async () => {
+        try {
+        const response = await axios.post(`/user/reset-password`);
+            setTimeout(() => {
+                window.location.href = response.data;}, 2000);
+            } catch (err) {
+                displayNotification(err.response.data, 'error');
+            }
+        navigate('/reset');
     }
 
 
@@ -29,6 +42,8 @@ const UserDashboardBody = () => {
             <UserDashboardMainDetails user={user}/>
             {!!user?.subscriptionDetails && <UserReservation />}
             <UserAccountOptions />
+
+            <button onClick={handleResetPassword} className='w-full md:w-1/2 xl:w-1/3 bg-primary text-white text-lg font-semibold px-4 py-2'>Resetare Parola</button>
 
             <button onClick={handleLogout} className='w-full md:w-1/2 xl:w-1/3 bg-primary text-white text-lg font-semibold px-4 py-2'>Iesi din cont</button>
         </div>

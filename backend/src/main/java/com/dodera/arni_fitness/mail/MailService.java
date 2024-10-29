@@ -52,10 +52,42 @@ public class MailService {
 
     public void sendTextMessage(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("test@doderasoft.com");
+        message.setFrom(fromEmail);
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
         emailSender.send(message);
+    }
+
+    public void sendRecoverPasswordEmail(String email, String name, String resetUrl) {
+        try {
+            String subject = "Resetare parola";
+            String text = EmailTemplates.getResetPasswordEmail(name, resetUrl);
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(email);
+            message.setSubject(subject);
+            message.setText(text);
+            emailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendErrorEmail(String error) {
+        try {
+            String subject = "A aparut o eroare la Arni-fitness";
+            String text = error;
+
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo("tools@doderasoft.com");
+            message.setSubject(subject);
+            message.setText(text);
+            emailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

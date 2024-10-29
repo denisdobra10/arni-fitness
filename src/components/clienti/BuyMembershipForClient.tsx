@@ -1,10 +1,16 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import axios from "../../utils/axios";
 import {useData} from "../../lib/data-provider.jsx";
+import { TextField } from '@mui/material';
+
+function convertDate(date) {
+    let d = new Date(date);
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
 
 function BuyMembershipForClient(props) {
     const { clients, memberships } = props;
@@ -12,6 +18,7 @@ function BuyMembershipForClient(props) {
 
     const [client, setClient] = React.useState('');
     const [membership, setMembership] = React.useState('');
+    const [selectedDate, setSelectedDate] = React.useState(convertDate(new Date()));
 
     const handleClientChange = (event) => {
         setClient(event.target.value);
@@ -23,7 +30,7 @@ function BuyMembershipForClient(props) {
 
     const handleBuyMembership = async () => {
         try {
-            await axios.post(`/admin/setMembership`, { clientId: client, membershipId: membership });
+            await axios.post(`/admin/setMembership`, { clientId: client, membershipId: membership, activationDate: selectedDate });
             window.location.reload();
 
             displayNotification('Abonamentul a fost setat cu success!', 'success')
@@ -70,7 +77,7 @@ function BuyMembershipForClient(props) {
                 <Select
                     labelId="select-coach-label"
                     id="select-coach"
-                    placeholder="Selecteaza antrenor"
+                    placeholder="Selecteaza abonament"
                     value={membership}
                     onChange={handleMembershipChange}
                 >
@@ -78,6 +85,9 @@ function BuyMembershipForClient(props) {
                         <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>
                     ))}
                 </Select>
+
+                <TextField type='date' id="cod-pin" label="Data activarii" placeholder="" variant="outlined"
+                        value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value)}}/>
 
                 <Button className='w-full sm:w-1/2 self-center' variant="contained"
                         onClick={() => handleBuyMembership()}>Continua</Button>

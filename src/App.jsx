@@ -19,6 +19,9 @@ import InventarPage from './pages/inventar-page';
 import AdminLayout from './pages/admin-layout';
 import ConfirmModal from './components/ConfirmModal';
 import TimerPage from "./pages/timer-page.tsx";
+import ResetPasswordScreen from './screens/reset-password-screen.tsx';
+import ForgotPasswordScreen from './screens/forgot-password-screen.tsx';
+import TermsPage from './pages/terms-page.tsx';
 
 function App() {
   const { isLoading, loadingMessage, isAuthenticated } = useData();
@@ -54,6 +57,9 @@ function App() {
             <Route path="/payment-redirect" element={<RequireAuth><TimerPage /></RequireAuth>} />
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/signup" element={<SignupScreen />} />
+            <Route path="/reset" element={<ResetPasswordScreen />} />
+            <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+            <Route path="/terms" element={<TermsPage />} />
             {/* Add a default route */}
             <Route path="/" element={<LoginScreen />} />
             <Route path="*" element={<ErrorPage />} />

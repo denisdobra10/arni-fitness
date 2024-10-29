@@ -16,6 +16,21 @@ public class EmailTemplates {
                 """.formatted(name, supportMail, supportPhone);
     }
 
+    public static String getResetPasswordEmail(String name, String resetLink) {
+        return """
+                Bună %s,
+                                
+                Am primit o solicitare de resetare a parolei pentru contul tău la Arni Fitness. Pentru a-ți reseta parola, te rugăm să folosești link-ul de mai jos:
+                                
+                %s
+                                
+                Dacă nu ai solicitat resetarea parolei, te rugăm să ignori acest mesaj.
+                                
+                Cu respect,
+                Echipa Arni Fitness
+                """.formatted(name, resetLink);
+    }
+
     public static String getPaymentEmail(
             String name, String membershipName,
             int membershipPrice, String paymentLink,

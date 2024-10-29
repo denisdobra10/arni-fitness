@@ -2,12 +2,13 @@ import React, {useEffect, useRef, useState} from 'react'
 import { useSignupValidator } from '../lib/form-validator';
 import { useData } from '../lib/data-provider';
 import axios from '../utils/axios'
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignupFormular = () => {
 
     const { displayLoadingScreen, hideLoadingScreen, displayNotification, login } = useData();
     const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+    const [gdprChecked, setGdprChecked] = useState(false);
     const submitButton = useRef(null);
     const navigate = useNavigate();
 
@@ -22,8 +23,17 @@ const SignupFormular = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     }
 
+    const handleGdprChange = (e) => {
+        setGdprChecked(e.target.checked);
+    };
+
     const handleSignup = async (e) => {
         e.preventDefault();
+
+        if (!gdprChecked) {
+            displayNotification('Trebuie sa fii de acord cu termenii si conditiile GDPR', 'warning');
+            return;
+        }
 
         const errors = useSignupValidator(formData.name, formData.email, formData.password, formData.confirmPassword);
         if (errors) {
@@ -74,13 +84,18 @@ const SignupFormular = () => {
                     className='border border-primary rounded-md p-3 text-primary placeholder-red-300 text-sm font-light focus:outline-primary'
                 />
 
+                <label htmlFor="gdpr" className='flex items-center'>
+                    <input type="checkbox" id="gdpr" name="gdpr" className='mr-2' checked={gdprChecked} onChange={handleGdprChange} />
+                    Sunt de acord cu&nbsp;<Link to={"/terms"} className="underline"> termenii și condițiile </Link>&nbsp;GDPR
+                </label>
+
                 <input ref={submitButton} type="submit" value="Creeaza cont" className='text-lg font-bold bg-primary py-3 w-2/3 text-white self-center rounded my-2 hover:cursor-pointer hover:bg-red-800 disabled:bg-gray-500' />
 
             </form>
 
             <div className="flex flex-row gap-1 text-primary text-base font-light">
                 <span>Ai deja un cont?</span>
-                <a href="#" className='italic underline font-bold'>Conecteaza-te</a>
+                <a href="/" className='italic underline font-bold'>Conecteaza-te</a>
             </div>
 
         </div>

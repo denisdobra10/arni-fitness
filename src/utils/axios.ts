@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: 'https://cloud.energykardioclub.ro/api',
     timeout: 100000,
     headers: {
         'Content-Type': 'application/json'
@@ -11,7 +11,8 @@ const instance = axios.create({
 instance.interceptors.request.use(
     (config) => {
         const accessToken = localStorage.getItem('accessToken')
-        if (accessToken) {
+        console.log(config?.url);
+        if (accessToken && config?.url !== '/register' && config?.url !== '/login' && config?.url !== '/forget-password') {
             config.headers['Authorization'] = `Bearer ${accessToken}`
         }
         return config
@@ -31,7 +32,7 @@ instance.interceptors.response.use(
         if (error.response.status === 401) {
             localStorage.removeItem('accessToken')
             localStorage.removeItem('user')
-            document.location.href = '/login'
+            // document.location.href = '/login'
     }
         return Promise.reject(error)
     }

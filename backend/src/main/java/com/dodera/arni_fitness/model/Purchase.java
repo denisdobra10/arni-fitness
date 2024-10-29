@@ -25,7 +25,7 @@ public class Purchase {
     @JsonBackReference
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "membership_id", nullable = false)
     @JsonBackReference
     private Membership membership;
@@ -45,4 +45,7 @@ public class Purchase {
 
     @Column(name = "status", nullable = false)
     private String status;
+
+    @OneToOne(mappedBy = "purchase", cascade = CascadeType.ALL)
+    private Subscription subscription;
 }

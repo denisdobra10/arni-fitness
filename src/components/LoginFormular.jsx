@@ -71,8 +71,13 @@ const LoginFormular = () => {
             </form>
 
             <div className="flex flex-row gap-4 self-end items-center">
-                <span className='text-base text-primary font-light'>Nu ai un cont?</span>
+                <span className='text-base text-primary font-light'>Nu ai un cont?  </span>
                 <Link to={'/signup'} className='bg-primary px-8 text-base py-2 text-center text-white font-bold rounded'>Inregistreaza-te</Link>
+            </div>
+
+            <div className="flex flex-row gap-4 self-end items-center">
+                <span className='text-base text-primary font-light'>Ai uitat parola?</span>
+                <Link to={'/forgot-password'} className='bg-primary px-8 text-base py-2 text-center text-white font-bold rounded'>Reseteaza parola</Link>
             </div>
 
             <div className="w-full h-[0.5px] bg-slate-600"></div>

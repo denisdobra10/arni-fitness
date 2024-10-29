@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 
 const TimerPage = () => {
-    const [count, setCount] = useState(5);
+    const [count, setCount] = useState(10);
     const navigate = useNavigate();
 
     useEffect(() => {

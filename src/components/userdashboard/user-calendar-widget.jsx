@@ -32,7 +32,7 @@ function UserCalendarWidget({ setSelectedDate, sessions }) {
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
                 locale={roLocale}
-                weekends={false}
+                weekends={true}
                 dateClick={handleDateClick}
                 eventClick={handleEventClick}
                 events={sessions.map(session =>

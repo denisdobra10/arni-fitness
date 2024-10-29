@@ -10,7 +10,7 @@ const UserDashboardHeader = ({ name, subscriptionType }) => {
 
             <div className="flex flex-col text-start mr-0 xl:mr-48">
                 <span className='text-black text-4xl font-semibold tracking-widest'>{name}</span>
-                <span className='text-2xl text-primary'>Abonamentul <span className="uppercase font-bold">{subscriptionType}</span></span>
+                {subscriptionType && <span className='text-2xl text-primary'>Abonamentul <span className="uppercase font-bold">{subscriptionType}</span></span>}
             </div>
 
             <img src={UserHeaderBusinessName} className='absolute top-0 left-10 w-32 h-32' />

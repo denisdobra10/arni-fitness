@@ -37,7 +37,7 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(length = 4, unique = true)
+    @Column(length = 4, unique = true, nullable = true)
     private Integer pin;
 
     @JsonIgnore
@@ -47,7 +47,7 @@ public class User implements UserDetails {
     @Column
     private LocalDateTime createdAt;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "last_subscription_id", referencedColumnName = "id")
     private Subscription lastSubscription;
 
@@ -58,7 +58,7 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Purchase> purchases;
 
     @JsonIgnore

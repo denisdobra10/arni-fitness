@@ -54,7 +54,7 @@ public class SecurityConfig {
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/stripe/**").permitAll()
-                        .requestMatchers("/forgot_password").permitAll()
+                        .requestMatchers("/recover/**").permitAll()
                         .requestMatchers("/refresh_token").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())

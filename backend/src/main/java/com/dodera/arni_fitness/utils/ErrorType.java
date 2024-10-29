@@ -1,7 +1,9 @@
 package com.dodera.arni_fitness.utils;
 
 public class ErrorType {
+    public static final String ALL_FIELDS_ERROR = "Te rog sa completezi toate campurile.";
     public static final String INVALID_CREDENTIALS = "Email sau parola gresita";
+    public static final String CLOSED_ACCOUNT = "Contul a fost inchis";
     public static final String USED_EMAIL = "Email-ul este deja folosit";
     public static final String ACCOUNT_CREATION_ERROR = "A aparut o eroare la crearea contului";
     public static final String UNEXPECTED_ERROR = "A aparut o eroare. Va rugam sa incercati mai tarziu.";
@@ -15,7 +17,7 @@ public class ErrorType {
     public static final String NO_SUBSCRIPTION_CHECK_IN = "Utilizatorul nu are nici un abonament activ.";
     public static final String EXPIRED_SUBSCRIPTION_CHECK_IN = "Abonamentul utilizatorului a expirat.";
     public static final String NO_ENTRIES_LEFT_CHECK_IN = "Utilizatorul a folosit toate intrarile disponibile.";
-
+    public static final String USER_ACTIVE_SUBSCRIPTION = "Utilizatorul are un abonament activ.";
     public static final String RESERVATION_EXISTS = "Deja ai rezervat acest antrenament.";
     public static final String HAS_ACTIVE_SUBSCRIPTION = "Deja ai un abonament activ.";
 }
