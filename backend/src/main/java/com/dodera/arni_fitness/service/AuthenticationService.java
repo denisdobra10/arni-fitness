@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -29,9 +30,10 @@ public class AuthenticationService {
     private final MailService mailService;
 
     private Integer generateRandomPin() {
-        int pin = ThreadLocalRandom.current().nextInt(1000, 10000);
+        Random random = new Random();
+        int pin = 1000 + random.nextInt(1000, 9000);
         while (userRepository.findByPin(pin).isPresent()) {
-            pin = ThreadLocalRandom.current().nextInt(1000, 10000);
+            pin = 1000 + random.nextInt(1000, 9000);
         }
 
         return pin;
@@ -63,6 +65,10 @@ public class AuthenticationService {
             mailService.sendWelcomeMessage(user.getEmail(), user.getName());
             return user;
         } catch (StripeException e) {
+            mailService.sendErrorEmail(e.getMessage());
+            throw new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR);
+        } catch (Exception e) {
+            mailService.sendErrorEmail(e.getMessage());
             throw new RuntimeException(ErrorType.ACCOUNT_CREATION_ERROR);
         }
     }
@@ -75,10 +81,6 @@ public class AuthenticationService {
 
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS));
-
-            if (!user.getActive()) {
-                throw new RuntimeException(ErrorType.CLOSED_ACCOUNT);
-            }
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new IllegalArgumentException(ErrorType.INVALID_CREDENTIALS);

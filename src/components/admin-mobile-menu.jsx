@@ -24,14 +24,14 @@ const AdminMobileMenu = () => {
                 </svg>
 
                 {modalActive && <div className="absolute right-6 top-8 flex flex-col p-5 gap-4 w-56 text-lg font-semibold rounded z-10 bg-slate-800 select-none">
-                    <Link to='/' className={currentPath === '/' ? 'text-red-500' : ''}>Statistici</Link>
-                    <Link to='/abonamente' className={currentPath === '/abonamente' ? 'text-red-500' : ''}>Abonamente</Link>
-                    <Link to='/clase' className={currentPath === '/clase' ? 'text-red-500' : ''}>Clase</Link>
-                    <Link to='/antrenori' className={currentPath === '/antrenori' ? 'text-red-500' : ''}>Antrenori</Link>
-                    <Link to='/calendar' className={currentPath === '/calendar' ? 'text-red-500' : ''}>Calendar</Link>
-                    <Link to='/clienti' className={currentPath === '/clienti' ? 'text-red-500' : ''}>Clienti</Link>
-                    <Link to='/inventar' className={currentPath === '/inventar' ? 'text-red-500' : ''}>Inventar</Link>
-                    <button className='border-t border-slate-500 w-full py-2 text-left'>Iesire din cont</button>
+                    <Link to='/admin' className={currentPath === '/admin' ? 'text-red-500' : ''}>Statistici</Link>
+                    <Link to='/admin/abonamente' className={currentPath === '/admin/abonamente' ? 'text-red-500' : ''}>Abonamente</Link>
+                    <Link to='/admin/clase' className={currentPath === '/admin/clase' ? 'text-red-500' : ''}>Clase</Link>
+                    <Link to='/admin/antrenori' className={currentPath === '/admin/antrenori' ? 'text-red-500' : ''}>Antrenori</Link>
+                    <Link to='/admin/calendar' className={currentPath === '/admin/calendar' ? 'text-red-500' : ''}>Calendar</Link>
+                    <Link to='/admin/clienti' className={currentPath === '/admin/clienti' ? 'text-red-500' : ''}>Clienti</Link>
+                    <Link to='/admin/inventar' className={currentPath === '/admin/inventar' ? 'text-red-500' : ''}>Inventar</Link>
+                    {/* <button className='border-t border-slate-500 w-full py-2 text-left'>Iesire din cont</button> */}
                 </div>}
             </div>
 

@@ -414,7 +414,8 @@ public class AdminService {
             throw new IllegalArgumentException("Utilizatorul are deja un abonament activ.");
         }
 
-        LocalDateTime activationDateTime = LocalDateTime.parse(activationDate);
+        LocalDate activationDateLocal = LocalDate.parse(activationDate);
+        LocalDateTime activationDateTime = activationDateLocal.atStartOfDay();
 
         try {
 //            Customer customer = Customer.retrieve(user.getStripeCustomerId());
@@ -470,7 +471,6 @@ public class AdminService {
         List<User> users = userRepository.findAll();
 
         return users.stream()
-                .filter(User::getActive)
                 .filter(user -> user.getRole().getName().equals("USER"))
                 .map(user -> {
             String paymentLink = "";
@@ -496,10 +496,6 @@ public class AdminService {
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Nu exista nici un utilizator cu acest id."));
 
-        if (!user.getActive()) {
-            return;
-        }
-
         LocalDateTime today = LocalDateTime.now();
         Subscription userSubscription = user.getLastSubscription();
 
@@ -509,9 +505,17 @@ public class AdminService {
             }
         }
 
-        user.setActive(false);
-        user.setPin(null);
-        userRepository.save(user);
+        if (user.getPurchases().isEmpty()) {
+            userRepository.delete(user);
+            return;
+        }
+
+        reservationRepository.deleteAll(reservationRepository.findAllForUserId(userId));
+        userRepository.delete(user);
+
+//        user.setActive(false);
+//        user.setPin(null);
+//        userRepository.save(user);
     }
 
     public void checkinUser(String pin) {

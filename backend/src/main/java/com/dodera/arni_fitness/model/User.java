@@ -45,12 +45,9 @@ public class User implements UserDetails {
     private String stripeCustomerId;
 
     @Column
-    private Boolean active = true;
-
-    @Column
     private LocalDateTime createdAt;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(name = "last_subscription_id", referencedColumnName = "id")
     private Subscription lastSubscription;
 
@@ -61,7 +58,7 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @JsonManagedReference
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Purchase> purchases;
 
     @JsonIgnore

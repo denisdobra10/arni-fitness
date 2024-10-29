@@ -4,10 +4,8 @@ import com.dodera.arni_fitness.dto.AvailableSession;
 import com.dodera.arni_fitness.dto.details.MembershipDetails;
 import com.dodera.arni_fitness.dto.response.PurchaseResponse;
 import com.dodera.arni_fitness.dto.response.UserDetailsResponse;
-import com.dodera.arni_fitness.model.Purchase;
+import com.dodera.arni_fitness.service.RecoverPasswordService;
 import com.dodera.arni_fitness.service.UserService;
-import com.stripe.model.checkout.Session;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +16,11 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
+    private final RecoverPasswordService recoverPasswordService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RecoverPasswordService recoverPasswordService) {
         this.userService = userService;
+        this.recoverPasswordService = recoverPasswordService;
     }
 
     @GetMapping("/details")
@@ -57,5 +57,11 @@ public class UserController {
     @GetMapping("/sessions")
     public List<AvailableSession> getAvailableSessions() {
         return userService.getAvailableSessions();
+    }
+
+    @PostMapping("/reset-password")
+    public String forgetPassword() {
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return recoverPasswordService.forgetPasswordFromApp(email);
     }
 }

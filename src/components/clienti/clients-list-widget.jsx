@@ -89,7 +89,6 @@ function ClientListWidget({ clients }) {
                         <TableRow>
                             <TableCell>Nume</TableCell>
                             <TableCell>Email</TableCell>
-                            <TableCell>Telefon</TableCell>
                             <TableCell>Pin</TableCell>
                             <TableCell>Data Inregistrarii</TableCell>
                             <TableCell>Abonament Activ</TableCell>
@@ -101,7 +100,6 @@ function ClientListWidget({ clients }) {
                             <TableRow key={client?.id}>
                                 <TableCell>{client?.name}</TableCell>
                                 <TableCell>{client?.email}</TableCell>
-                                <TableCell>{client?.phoneNumber}</TableCell>
                                 <TableCell>{client?.pin}</TableCell>
                                 <TableCell>{formatDate(client?.createdAt)}</TableCell>
                                 <TableCell>{client?.hasActiveSubscription ? 'Da' : 'Nu'}</TableCell>

@@ -17,6 +17,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT r FROM Reservation r WHERE r.user.id = ?1 and r.session.datetime > ?2")
     List<Reservation> findAllByUserAndDate(User user, LocalDateTime date);
 
+    void deleteAllByUser(User user);
+
     Optional<Reservation> findByUserAndSession(User user, Session session);
 
     List<Reservation> findAllBySession(Session session);
