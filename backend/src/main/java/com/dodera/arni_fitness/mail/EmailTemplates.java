@@ -5,14 +5,14 @@ public class EmailTemplates {
         return """
                 Bună %s,
                                 
-                Suntem încântați să te avem alături de noi! Contul tău la Arni Fitness a fost creat cu succes. Acum poți accesa toate beneficiile și resursele oferite de sala noastră.
+                Suntem încântați să te avem alături de noi! Contul tău la Energy Kardio Club a fost creat cu succes. Acum poți accesa toate beneficiile și resursele oferite de sala noastră.
                                                                 
                 Dacă ai întrebări sau ai nevoie de asistență, nu ezita să ne contactezi la %s sau la %s.
                                 
-                Îți mulțumim că ai ales Arni Fitness! Suntem nerăbdători să te ajutăm să îți atingi obiectivele de fitness.
+                Îți mulțumim că ai ales Energy Kardio Club! Suntem nerăbdători să te ajutăm să îți atingi obiectivele de fitness.
                                 
                 Cu respect,
-                Echipa Arni Fitness
+                Echipa Energy Kardio Club
                 """.formatted(name, supportMail, supportPhone);
     }
 
